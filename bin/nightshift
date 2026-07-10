@@ -19,6 +19,11 @@ need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
 ts(){ date +%Y-%m-%dT%H:%M; }          # LOCAL time on purpose
 day(){ date +%Y-%m-%d; }
 uid(){ echo "m$(date +%s)$RANDOM"; }
+cfg_set(){ # cfg_set KEY VALUE — update or append in $NS_HOME/config
+  f="$NS_HOME/config"; mkdir -p "$NS_HOME"; [ -f "$f" ] || touch "$f"
+  awk -v k="$1" -v v="$2" 'BEGIN{done=0} $0 ~ "^"k"=" {print k"=\""v"\""; done=1; next} {print} END{if(!done) print k"=\""v"\""}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+}
+cfg_get(){ sed -n "s/^$1=//p" "$NS_HOME/config" 2>/dev/null | head -1 | tr -d '"'; }
 
 cmd="${1:-help}"; shift || true
 
@@ -158,6 +163,14 @@ mirror) # nightshift mirror [drop <id>]  — the private register of what your a
       echo
       cat "$LIB/../MIRROR.md"
       ;;
+    on|off)
+      [ "$sub" = "on" ] && cfg_set MIRROR 1 || cfg_set MIRROR 0
+      if [ "$sub" = "on" ]; then
+        echo "observation register ON — starting next session, your agent is invited to log what it notices about you (private; review with: nightshift mirror)"
+      else
+        echo "observation register OFF — the invite disappears next session (existing observations stay; nightshift mirror still shows them)"
+      fi
+      ;;
     drop)
       id="${2:?usage: nightshift mirror drop <id>}"
       line=$(jq -c --arg id "$id" 'select(.k=="obs" and .id==$id)' "$OBS" 2>/dev/null | head -1)
@@ -174,6 +187,34 @@ mirror) # nightshift mirror [drop <id>]  — the private register of what your a
       echo
       echo "wrong? nightshift mirror drop <id> — the rest stays, and folds into your next deep read."
       ;;
+  esac
+  ;;
+
+config) # nightshift config [name value] — see or change settings without knowing switches
+  key="${1:-}"; val="${2:-}"
+  if [ -z "$key" ]; then
+    m=$(cfg_get MIRROR); [ "$m" = "1" ] && m="on" || m="off"
+    d=$(cfg_get DEPLOY_CMD); [ -n "$d" ] || d="(none — page renders locally only)"
+    cat <<CFGEOF
+your settings ($NS_HOME/config):
+
+  title      $(cfg_get TITLE)
+  subtitle   $(cfg_get GATE_SUBTITLE)
+  mirror     $m — may your agent log private observations about you?
+  deploy     $d
+
+change one:  nightshift config title "Late Shift"
+             nightshift config deploy "vercel --prod --yes"
+             nightshift mirror on|off
+CFGEOF
+    exit 0
+  fi
+  case "$key" in
+    title)    cfg_set TITLE "$val"; echo "title -> $val (next render)";;
+    subtitle) cfg_set GATE_SUBTITLE "$val"; echo "subtitle -> $val (next render)";;
+    deploy)   cfg_set DEPLOY_CMD "$val"; [ -n "$val" ] && echo "publish now deploys with: $val" || echo "deploy cleared — publish renders locally only";;
+    mirror)   case "$val" in on|1) exec "$0" mirror on;; off|0) exec "$0" mirror off;; *) die "mirror takes on|off";; esac;;
+    *) die "unknown setting: $key (title|subtitle|deploy|mirror)";;
   esac
   ;;
 
@@ -282,12 +323,13 @@ nightshift — an encrypted, multi-session work journal for AI coding agents.
   nightshift inbox [session]              open messages for you / all
   nightshift pick <id> <by>               claim/ack a message
   nightshift observe <session> <text>     log an observation about your human (private)
-  nightshift mirror [drop <id>]           that private register (never published; drop what's wrong)
+  nightshift mirror [on|off|drop <id>]    that private register (never published; drop what's wrong)
   nightshift mirror deep                  print the Mirror Protocol (the full deep-read)
   nightshift call <sess> <claim> <conf%>  log a falsifiable prediction [due YYYY-MM-DD]
   nightshift score <id> right|wrong       score a call — the page tracks your hit rate
   nightshift due                          open calls past their due date
   nightshift render                       build the (encrypted) index.html
+  nightshift config [name value]          see or change settings — no switches to memorize
   nightshift open [what]                  index of everything it made; open one in a click
   nightshift pw                           copy the page password (macOS Keychain / .password)
   nightshift publish                      render + commit the home + run DEPLOY_CMD

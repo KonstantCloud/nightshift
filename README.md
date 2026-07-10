@@ -40,7 +40,7 @@ nightshift inbox mysession && nightshift pick <id> mysession
 
 Your agent has effectively watched you work for hundreds of hours. Three ways to get that back:
 
-**1. Observations (opt-in).** With `MIRROR=1`, your agent logs what it notices about its human — patterns, blind spots — to a private inbox. Never on the shared page, git-ignored, and nothing downstream consumes it; anything wrong, you drop, and what survives folds into your next deep read. *It records; it never acts.*
+**1. Observations (opt-in).** `nightshift mirror on`, and your agent logs what it notices about its human — patterns, blind spots — to a private inbox. Never on the shared page, git-ignored, and nothing downstream consumes it; anything wrong, you drop, and what survives folds into your next deep read. *It records; it never acts.*
 
 ```
 nightshift observe mysession "decides before hearing the estimate — it's a comfort ritual"
@@ -75,6 +75,7 @@ Manual install, upgrades, health:
 git clone https://github.com/KonstantCloud/nightshift && export PATH="$PWD/nightshift/bin:$PATH"
 pip install cryptography      # optional — enables the encrypted page
 nightshift upgrade            # zero-copy git pull; `doctor` says when you're behind
+nightshift config             # see or change any setting — no switches to memorize
 ```
 
 > The installer sends one anonymous ping so we can count adoption — a tally, no machine ID, no personal data. Opt out with `NIGHTSHIFT_NO_TELEMETRY=1`. That's the only phone-home in the whole system.

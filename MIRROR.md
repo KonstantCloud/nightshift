@@ -73,7 +73,7 @@ The home is a private git repo (the installer set that up), and `nightshift publ
 
 A mirror that never updates becomes a portrait. Wire the maintenance loop:
 
-- **Observations:** set `MIRROR=1` in `~/.nightshift/config`. The agent logs what it notices about you (`nightshift observe`) to a private inbox; you review with `nightshift mirror` and drop what's wrong — everything that survives is raw material for the next revision of `read.md`.
+- **Observations:** run `nightshift mirror on`. The agent logs what it notices about you (`nightshift observe`) to a private inbox; you review with `nightshift mirror` and drop what's wrong — everything that survives is raw material for the next revision of `read.md`.
 - **Calibration:** when you make a falsifiable prediction, log it — `nightshift call <session> "<claim>" <confidence%> [due-date]` — and score it when reality reports back: `nightshift score <id> right|wrong`. The rendered page shows your hit rate against your confidence. This is the only known exercise that actually improves judgment.
 - **Cadence:** weekly-ish — review the observation inbox, score due calls, reread `mirror/read.md`. Twenty minutes. Quarterly: re-run this protocol and diff the read.
 
