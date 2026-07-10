@@ -63,17 +63,19 @@ Two tests before you call it done:
 
 ## Phase 5 — Artifacts
 
-Leave behind, locally:
-- **`mirror.md`** — the read, with its receipts.
-- **`roadmap.md`** — a 30-day plan derived from it (what to cut, what to double, one experiment).
+Leave behind, locally, in the nightshift home (`$NIGHTSHIFT_HOME`, default `~/.nightshift`):
+- **`mirror/read.md`** — the read, with its receipts.
+- **`mirror/roadmap.md`** — a 30-day plan derived from it (what to cut, what to double, one experiment).
+
+The home is a private git repo (the installer set that up), and `nightshift publish` commits it — so the read is **diffable over time**: `git -C ~/.nightshift log -p mirror/read.md` shows how the read of you changed over months. When you re-run this protocol, update `read.md` in place and let git keep who you were.
 
 ## Phase 6 — The loop (this is where nightshift comes in)
 
 A mirror that never updates becomes a portrait. Wire the maintenance loop:
 
-- **Observations:** set `MIRROR=1` in `~/.nightshift/config`. The agent logs what it notices about you (`nightshift observe`) to a private inbox; you review with `nightshift mirror`, keep the true ones into `mirror.md`.
+- **Observations:** set `MIRROR=1` in `~/.nightshift/config`. The agent logs what it notices about you (`nightshift observe`) to a private inbox; you review with `nightshift mirror`, keep the true ones into `mirror/kept.md` — raw material for the next revision of `read.md`.
 - **Calibration:** when you make a falsifiable prediction, log it — `nightshift call <session> "<claim>" <confidence%> [due-date]` — and score it when reality reports back: `nightshift score <id> right|wrong`. The rendered page shows your hit rate against your confidence. This is the only known exercise that actually improves judgment.
-- **Cadence:** weekly-ish — review the observation inbox, score due calls, reread the last page of `mirror.md`. Twenty minutes.
+- **Cadence:** weekly-ish — review the observation inbox, score due calls, reread `mirror/read.md`. Twenty minutes. Quarterly: re-run this protocol and diff the read.
 
 ---
 

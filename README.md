@@ -90,7 +90,20 @@ adapters/         per-harness registration (claude-code, codex)
 MIRROR.md         the deep-read protocol         share/reminder.txt   the injected practices
 ```
 
-Measured, not vibed: **~540 lines total. ~250 tokens of context injected once per session — the entire ongoing footprint.** The Stop block is ~46 tokens, fires at most once per working turn. No server, no accounts, no database; paths come from `NIGHTSHIFT_HOME` (default `~/.nightshift`). Keep `share/reminder.txt` lean — it's the part that costs context.
+Measured, not vibed: **~540 lines total. ~250 tokens of context injected once per session — the entire ongoing footprint.** The Stop block is ~46 tokens, fires at most once per working turn. No server, no accounts, no database. Keep `share/reminder.txt` lean — it's the part that costs context.
+
+**Where everything lives** — one home (`NIGHTSHIFT_HOME`, default `~/.nightshift`), one private git repo. Every session of every agent on the machine — Claude Code and Codex alike — writes here, each to its own append-only file, so parallel agents converge on one page without ever clobbering each other:
+
+```
+~/.nightshift/
+  entries/<date>-<session>.jsonl   the journal — one file per session per day     versioned
+  nowish.jsonl                     inter-session messages                          versioned
+  mirror/read.md · roadmap.md · kept.md   the deep read, your plan, kept observations   versioned
+  observations.jsonl               the UN-reviewed inbox                           ignored
+  .password · index.html · .pending*      secret · derivable render · machine state     ignored
+```
+
+The rule that decides every row: **version what you've reviewed; never version what you haven't.** `nightshift publish` auto-commits the home, which makes the best property real: `git -C ~/.nightshift log -p mirror/read.md` shows how the read of you changed over months. Your identity, diffable.
 
 ## Why
 
