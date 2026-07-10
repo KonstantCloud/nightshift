@@ -35,6 +35,7 @@
   --amber: oklch(0.80 0.135 74);
   --amber-deep: oklch(0.70 0.15 66);
   --indigo: oklch(0.72 0.10 275);
+  --moon: oklch(0.86 0.025 255);
   --line: oklch(0.31 0.030 262 / 0.9);
   --line-soft: oklch(0.29 0.030 262 / 0.45);
   --ok: oklch(0.80 0.13 155);
@@ -140,8 +141,8 @@ header.nav{ position:sticky; top:0; z-index:var(--z-nav);
 .hero-stats .stat .k{ font-size:0.72rem; color:var(--faint); letter-spacing:0.05em; margin-top:0.2rem; }
 
 /* ---------- terminal ---------- */
-.term{ position:relative; border-radius:14px; border:1px solid oklch(0.40 0.045 75 / 0.85);
-  background:linear-gradient(180deg, oklch(0.205 0.018 70), oklch(0.170 0.015 68));
+.term{ position:relative; border-radius:14px; border:1px solid oklch(0.45 0.055 76 / 0.9);
+  background:linear-gradient(180deg, oklch(0.235 0.022 72), oklch(0.185 0.017 68));
   box-shadow:0 44px 100px -45px oklch(0 0 0 / 0.95), inset 0 1px 0 oklch(0.80 0.135 74 / 0.16),
              0 0 150px -30px oklch(0.80 0.135 74 / 0.55);
   overflow:hidden; }
@@ -215,6 +216,18 @@ section{ padding:clamp(3.5rem,7vw,6rem) 0; }
 .note .msg.fade{ opacity:0.5; }
 .lockrow{ display:flex; align-items:center; gap:0.8rem; color:var(--muted); }
 .lockrow svg{ flex:none; }
+
+/* the mirror act — moonlight, not lamplight */
+.mirror-sec{ border-top:1px solid var(--line-soft);
+  background:linear-gradient(180deg, oklch(0.17 0.035 272 / 0.5), transparent 70%); }
+.mirror-sec .kick{ color:var(--moon); }
+.mirror-sec .f-copy .n{ color:var(--moon); }
+.mirror-sec .panel .hdr::before{ background:var(--moon); box-shadow:0 0 10px 1px oklch(0.86 0.025 255 / 0.5); }
+.calib{ font-family:var(--font-mono); font-size:0.78rem; color:var(--faint); border-top:1px dashed var(--line);
+  margin-top:0.8rem; padding-top:0.7rem; }
+.calib b{ color:var(--moon); font-weight:500; }
+.obs-actions{ margin-top:0.7rem; font-size:0.76rem; color:var(--faint); }
+.obs-actions code{ color:var(--moon); background:transparent; border:0; padding:0; }
 
 /* install / wire-in */
 .install-sec{ border-top:1px solid var(--line-soft); }
@@ -297,6 +310,7 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
     <a href="#top" class="brand"><span class="dot" aria-hidden="true"></span>nightshift</a>
     <nav class="nav-links">
       <a href="#how" class="link-hide">how it works</a>
+      <a href="#mirror" class="link-hide">the mirror</a>
       <a href="#install" class="link-hide">install</a>
       <a class="nav-gh" href="https://github.com/KonstantCloud/nightshift" target="_blank" rel="noopener">
         GitHub <span class="star" id="gh-star">★</span>
@@ -440,6 +454,64 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
     </div>
   </section>
 
+  <!-- THE MIRROR -->
+  <section id="mirror" class="mirror-sec">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="kick">// the mirror</div>
+        <h2>Then it points the instrument at you.</h2>
+        <p>Your agent has effectively watched you work for hundreds of hours. The same journal that protects its thinking can hold what it noticed about you — and the record of your own judgment, scored.</p>
+      </div>
+
+      <div class="feature reveal">
+        <div class="f-copy">
+          <div class="n">05 · the observation register</div>
+          <h3>What your agent noticed about you</h3>
+          <p>Opt in with <code>MIRROR=1</code> and your agent logs observations about its human — patterns, blind spots, calls worth revisiting — to a <em>private</em> inbox. Never on the shared page, git-ignored by default, and nothing consumes an observation until you keep it. It records; it never acts.</p>
+        </div>
+        <div class="f-visual">
+          <div class="panel">
+            <div class="hdr">nightshift mirror — your eyes only</div>
+            <div class="diaryline">decides before hearing the estimate — the estimate is a comfort ritual, not an input.</div>
+            <div class="obs-actions">keep → mirror.md &nbsp;·&nbsp; drop → gone. <code>you review; nobody else reads this.</code></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature flip reveal">
+        <div class="f-copy">
+          <div class="n">06 · calls</div>
+          <h3>Price your predictions when you make them</h3>
+          <p>About to commit — a deploy, a refactor, a bet between approaches? Your agent offers it in the moment: <em>"want to call it?"</em> Confidence plus a date. When a call comes due, the next session opens by asking how it resolved. The page keeps your hit rate against your confidence. Uncomfortable, by design.</p>
+        </div>
+        <div class="f-visual">
+          <div class="panel">
+            <div class="hdr">calls</div>
+            <div class="tline"><span class="ship">◎ 80%&nbsp; this refactor ships by Friday&nbsp; <span style="color:var(--faint)">· due 07-17</span></span></div>
+            <div class="calib">calibration: <b>7/9 right (78%)</b> · at ≥80% conf: <b>3/3</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature reveal">
+        <div class="f-copy">
+          <div class="n">07 · the deep read</div>
+          <h3>Have it tell you who you are</h3>
+          <p><code>nightshift mirror deep</code> prints a staged protocol your agent runs <em>locally</em>: mine your own session archives, distill evidence with dated receipts, test its hypotheses against you in interview — then write the read. Who you are when you work. Where your hours die. Where they multiply. Nothing leaves your machine; that constraint is written into the protocol itself.</p>
+        </div>
+        <div class="f-visual">
+          <div class="panel">
+            <div class="hdr">mirror-protocol.md — ground rules</div>
+            <div class="tline"><span class="agent">1. everything stays on this machine.</span></div>
+            <div class="tline"><span class="agent">3. receipts or it didn't happen.</span></div>
+            <div class="tline"><span class="agent">4. probe before you promise.</span></div>
+            <div class="tline"><span class="agent">5. register: candid colleague — laptops closed.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- INSTALL -->
   <section id="install" class="install-sec">
     <div class="wrap">
@@ -461,7 +533,8 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
       <div class="steps reveal">
         <div class="step"><div class="num">it does →</div><h3>Sets you up</h3><p>Drops the <code>nightshift</code> command on your PATH and runs <code>init</code>.</p></div>
         <div class="step"><div class="num">it does →</div><h3>Versions your journal</h3><p><code>git init</code>s <code>~/.nightshift</code> — your thinking is a real repo from entry one.</p></div>
-        <div class="step"><div class="num">it does →</div><h3>Wires the harness</h3><p>Points you at the Claude Code / Codex adapter so the Stop hook is live.</p></div>
+        <div class="step"><div class="num">it does →</div><h3>Wires the harness</h3><p>Detects Claude Code and offers to wire the hooks itself — one enter. Codex is one TOML block.</p></div>
+        <div class="step"><div class="num">it does →</div><h3>Stays current</h3><p><code>nightshift upgrade</code> is a zero-copy git pull; <code>doctor</code> tells you when you're behind.</p></div>
       </div>
 
       <div class="tabs reveal">
@@ -472,7 +545,7 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
         <div class="tabpanel" id="panel-cc" role="tabpanel" aria-labelledby="tab-cc">
           <div><span class="c"># merge the hooks into ~/.claude/settings.json</span></div>
           <div><span class="p">$</span> bash adapters/claude-code/install.sh</div>
-          <div class="note-sm">Then open <code>/hooks</code> once so Claude Code picks them up. SessionStart injects the practices; Stop enforces them.</div>
+          <div class="note-sm">The main installer offers to run this for you. Hooks load automatically in your next session — <code>/hooks</code> only reloads one that's already running.</div>
         </div>
         <div class="tabpanel" id="panel-cx" role="tabpanel" aria-labelledby="tab-cx" hidden>
           <div><span class="c"># copy the native hooks into ~/.codex/config.toml</span></div>
@@ -486,9 +559,8 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
   <!-- WHY -->
   <section class="why">
     <div class="wrap">
-      <p class="statement reveal">It's your <span class="amber">agent's thinking</span> — and it only survives if it survives execution pressure. It never does by willpower.</p>
-      <p class="after reveal">So nightshift makes the cheapest action that satisfies the system <em>be</em> the thing you actually want: a logged thought. And with the opt-in observation register, the journal holds what your agent noticed about <em>you</em> too — patterns, blind spots, calls worth revisiting — in a private inbox only you review. It records; it never acts.</p>
-      <p class="after reveal">Then it points the instrument at your judgment: <span class="mono" style="color:var(--amber);font-size:0.9em;">nightshift mirror deep</span> ships a protocol where your agent mines your own session archives — locally, receipts required — and tells you who you are when you work. Log your predictions with a confidence; score them when reality reports back. The page keeps your hit rate. Uncomfortable, by design.</p>
+      <p class="statement reveal">Execution pressure eats thinking — <span class="amber">unless the harness holds it</span>.</p>
+      <p class="after reveal">nightshift makes the cheapest action that satisfies the system <em>be</em> the thing you actually want: a logged thought, a priced prediction, an observation you can check. 500 lines of shell and Python, one markdown protocol, ~250 tokens of session context, no server, no accounts. Thin enough to read before you run it — and it never acts on your behalf.</p>
       <div class="cta-row reveal">
         <a class="btn-ghost" href="https://github.com/KonstantCloud/nightshift" target="_blank" rel="noopener" style="color:var(--ink);border-color:var(--amber-deep);">
           Read the source →
