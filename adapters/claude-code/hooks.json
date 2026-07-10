@@ -1,0 +1,7 @@
+{
+  "hooks": {
+    "SessionStart": [{ "hooks": [{ "type": "command", "command": "bash <PKG>/hooks/session-start.sh", "timeout": 10 }] }],
+    "PostToolUse":  [{ "matcher": "Bash", "hooks": [{ "type": "command", "command": "bash <PKG>/hooks/posttool.sh", "timeout": 10 }] }],
+    "Stop":         [{ "hooks": [{ "type": "command", "command": "bash <PKG>/hooks/stop.sh", "timeout": 15 }] }]
+  }
+}

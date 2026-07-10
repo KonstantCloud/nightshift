@@ -1,0 +1,16 @@
+# Add to ~/.codex/config.toml (or ~/.codex/hooks.json). Replace <PKG> with the repo path.
+[[hooks.SessionStart]]
+[[hooks.SessionStart.hooks]]
+type = "command"
+command = 'bash <PKG>/hooks/session-start.sh'
+
+[[hooks.PostToolUse]]
+matcher = "^Bash$"
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = 'bash <PKG>/hooks/posttool.sh'
+
+[[hooks.Stop]]
+[[hooks.Stop.hooks]]
+type = "command"
+command = 'bash <PKG>/hooks/stop.sh'

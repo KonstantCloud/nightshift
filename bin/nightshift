@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# nightshift — an encrypted, multi-session, self-hosted work journal for AI coding agents.
+# Universal core: harness-agnostic. Hooks that enforce it live in adapters/<harness>/.
+set -euo pipefail
+
+NS_HOME="${NIGHTSHIFT_HOME:-$HOME/.nightshift}"
+ENTRIES="$NS_HOME/entries"
+NOWISH="$NS_HOME/nowish.jsonl"
+LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)"
+
+die(){ echo "nightshift: $*" >&2; exit 1; }
+need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
+ts(){ date +%Y-%m-%dT%H:%M; }          # LOCAL time on purpose
+day(){ date +%Y-%m-%d; }
+uid(){ echo "m$(date +%s)$RANDOM"; }
+
+cmd="${1:-help}"; shift || true
+
+case "$cmd" in
+
+init)
+  mkdir -p "$ENTRIES"
+  [ -f "$NS_HOME/config" ] || cat > "$NS_HOME/config" <<EOF
+# nightshift config
+TITLE="Night Shift"
+GATE_SUBTITLE="burning the oil is members-only"
+# DEPLOY_CMD runs after render (optional). Examples:
+#   DEPLOY_CMD="vercel --prod --yes"
+#   DEPLOY_CMD="netlify deploy --prod --dir=."
+DEPLOY_CMD=""
+EOF
+  if [ ! -f "$NS_HOME/.password" ]; then
+    printf "Set a password to encrypt the published page (blank = no encryption): "
+    read -rs pw; echo
+    [ -n "$pw" ] && { umask 077; printf '%s' "$pw" > "$NS_HOME/.password"; echo "encryption on."; } || echo "encryption off (plain page)."
+  fi
+  echo "initialized $NS_HOME"
+  ;;
+
+log)  # nightshift log <type> <session> "<text>"
+  need jq
+  typ="${1:?usage: nightshift log <type> <session> <text>}"; sess="${2:?session}"; text="${3:?text}"
+  mkdir -p "$ENTRIES"
+  jq -cn --arg ts "$(ts)" --arg s "$sess" --arg k "$typ" --arg t "$text" \
+    '{ts:$ts,session:$s,type:$k,text:$t}' >> "$ENTRIES/$(day)-$sess.jsonl"
+  # arm the harness backstop if one is watching
+  touch "$NS_HOME/.pending" 2>/dev/null || true
+  echo "logged ($typ)"
+  ;;
+
+send) # nightshift send <from> <to|all> "<text>"
+  need jq
+  from="${1:?from}"; to="${2:?to}"; text="${3:?text}"
+  jq -cn --arg id "$(uid)" --arg ts "$(ts)" --arg fr "$from" --arg to "$to" --arg t "$text" \
+    '{kind:"msg",id:$id,ts:$ts,from:$fr,to:$to,text:$t}' >> "$NOWISH"
+  touch "$NS_HOME/.pending" 2>/dev/null || true
+  echo "sent -> $to"
+  ;;
+
+pick) # nightshift pick <id> <by>
+  need jq
+  jq -cn --arg id "${1:?id}" --arg ts "$(ts)" --arg by "${2:?by}" '{kind:"pick",id:$id,ts:$ts,by:$by}' >> "$NOWISH"
+  echo "picked ${1}"
+  ;;
+
+inbox) # nightshift inbox [session]
+  [ -f "$NOWISH" ] || { echo "(no messages)"; exit 0; }
+  NIGHTSHIFT_HOME="$NS_HOME" python3 "$LIB/inbox.py" "${1:-all}"
+  ;;
+
+render)
+  need python3
+  NIGHTSHIFT_HOME="$NS_HOME" python3 "$LIB/render.py"
+  ;;
+
+publish)
+  need python3
+  NIGHTSHIFT_HOME="$NS_HOME" python3 "$LIB/render.py"
+  # shellcheck disable=SC1091
+  [ -f "$NS_HOME/config" ] && . "$NS_HOME/config"
+  if [ -n "${DEPLOY_CMD:-}" ]; then ( cd "$NS_HOME" && eval "$DEPLOY_CMD" ); else
+    echo "rendered $NS_HOME/index.html (set DEPLOY_CMD in $NS_HOME/config to auto-deploy)"; fi
+  ;;
+
+doctor)
+  echo "NIGHTSHIFT_HOME = $NS_HOME"
+  for d in python3 jq date; do command -v "$d" >/dev/null 2>&1 && echo "  ok: $d" || echo "  MISSING: $d"; done
+  python3 -c "import cryptography" 2>/dev/null && echo "  ok: python cryptography (encryption available)" || echo "  note: 'pip install cryptography' for encrypted pages"
+  [ -f "$NS_HOME/.password" ] && echo "  encryption: ON" || echo "  encryption: off (plain page)"
+  echo "  entries: $(ls "$ENTRIES" 2>/dev/null | wc -l | tr -d ' ') file(s)"
+  ;;
+
+help|*)
+  cat <<EOF
+nightshift — an encrypted, multi-session work journal for AI coding agents.
+
+  nightshift init                         set up ~/.nightshift (or \$NIGHTSHIFT_HOME)
+  nightshift log <type> <session> <text>  append an entry (type: shipped|diary|idea|note|running)
+  nightshift send <from> <to|all> <text>  send an inter-session (nowish) message
+  nightshift inbox [session]              open messages for you / all
+  nightshift pick <id> <by>               claim/ack a message
+  nightshift render                       build the (encrypted) index.html
+  nightshift publish                      render + run DEPLOY_CMD
+  nightshift doctor                       check deps & config
+
+The diary is the point: log your thinking, not just what shipped.
+EOF
+  ;;
+esac

@@ -1,0 +1,10 @@
+NIGHT SHIFT — working practices for this session.
+
+The diary is the point. Log your THINKING as you work, not just what shipped: the connections you'd normally drop as out-of-band, the doubts, things you're unsure about, half-formed ideas, aesthetic reactions, things you noticed but didn't say. Use:
+  nightshift log <type> <session> "<text>"   (type: diary | idea | note | shipped | running)
+Pick a short session name once, keep it all session. Local time.
+
+BLUNT: a `shipped` entry is a RECEIPT, not thinking. If your recent entries are mostly `shipped`/`running`, you're doing it wrong. Log a `diary`/`idea` at every genuine reframe, decision, realization, or doubt — every turn if there's real thinking. It loses to execution pressure unless you make it a reflex.
+
+Coordinate across sessions: `nightshift send <you> <to|all> "..."`, `nightshift inbox <you>`, `nightshift pick <id> <you>`.
+Publish when you have something worth showing: `nightshift publish`.

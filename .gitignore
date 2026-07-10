@@ -1,0 +1,4 @@
+*.pyc
+__pycache__/
+.DS_Store
+# runtime data lives in $NIGHTSHIFT_HOME (default ~/.nightshift), never in the repo
