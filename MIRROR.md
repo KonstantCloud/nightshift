@@ -8,6 +8,8 @@ You've been working next to AI agents for hundreds of hours. Every session left 
 
 **How to run it:** grab it in one line — `curl -fsSL https://night-shift.sh/mirror | pbcopy` (macOS; `xclip` on Linux) — paste it into a fresh agent session and say *"run this on me."* Or locally: `nightshift mirror deep`. Budget a real session for it — this is archaeology, not a chat.
 
+**What to expect, honestly.** The depth of the read scales with three things you control: how much archive you have (months of sessions beat weeks; the best runs mined 10,000+ prompts across multiple tools), how honestly you answer the interview, and whether you iterate — the strongest mirrors sharpen over 2–3 sessions as your corrections land. A first pass on a thin archive is a sketch, not a portrait. Run the loop and it becomes one.
+
 ---
 
 ## Ground rules (agent: these are hard constraints)
@@ -27,11 +29,21 @@ Find every archive of the user working with agents: `~/.claude/projects` (JSONL 
 
 Mine the corpus into a single evidence file with dated receipts. Do **selection, not summary** — rank what's load-bearing:
 
-- **Rhythms:** when do they actually work? Estimate active hours via inter-prompt gaps (cap gaps at ~30 min). Night vs day. Streaks and dead zones — then ask what the dead zones were.
-- **Throughput shifts:** machine-actions per active hour over time. Did some practice change (new tooling, new prompting style) visibly multiply leverage? Did rework rise with it?
+- **Rhythms:** when do they actually work? Night vs day. Streaks and dead zones — then ask what the dead zones were.
+- **Throughput shifts:** did some practice change (new tooling, new prompting style) visibly multiply leverage? Did rework rise with it?
 - **Repeated patterns:** questions they ask again and again, projects rebuilt more than once, threads started and abandoned. Count them.
 - **Vocabulary shifts:** terms that appear/disappear across months — they mark changes in how the person thinks, often before the person notices.
 - **Where hours die:** the tasks that eat sessions without shipping. Where hours multiply: the moves that consistently pay.
+
+### Measurement recipes (agent: use these, don't improvise)
+
+These are the methods that produced the strongest runs — concrete enough to reproduce:
+
+- **Active hours.** Extract every user-prompt timestamp per day, sort, sum the inter-prompt gaps **capped at 30 minutes** (a 4-hour gap is a break, not work). Report by month. Sweep EVERY agent home — `~/.claude/projects`, `~/.codex/sessions`, others — a single-tool count can miss half the corpus.
+- **The leverage curve.** Machine-actions (tool calls / file edits) per active hour, by month. A real practice change shows as a step, not a slope. Always check the **rework rate** (reverts, fix-the-fix commits) alongside it — speed that raises rework isn't leverage.
+- **Vocabulary shift.** Term frequency by month over the user's own prompts. New coordination words appearing (or old framing words dying) usually predate the person's awareness of the change by weeks. Name the shift and date it.
+- **Dead-thread census.** Topics that recur across weeks then vanish without a shipped artifact. Each one is either a correctly killed idea or an avoidance — only the interview can tell you which. Bring the list.
+- **Scale technique.** On a large corpus, fan out subagents (one per archive / per month) that return *selected receipts*, not summaries. You are building an evidence file, not a book report.
 
 ## Phase 3 — Interview
 
@@ -40,6 +52,14 @@ Present hypotheses **one at a time**, framed to be falsified: "The evidence sugg
 ## Phase 4 — The read
 
 Write the deep read: who this person is when they work — evidence first, verdict second. Include the uncomfortable parts (what they avoid, where their ego bites, the gap between what they say matters and where hours go). Include the flattering parts only when the receipts force them. End with: where your hours die, where they multiply, and the one change with the highest expected value.
+
+### What good looks like (the quality bar)
+
+A finished read has, at minimum: **the numbers** (active hours by month, the leverage curve, both with method stated), **the rhythms** (when this person actually works, with receipts), **the repeated patterns** (counted, dated), **where hours die / multiply**, **the uncomfortable section** (what the evidence says they avoid), and **one highest-expected-value change** — singular, specific, falsifiable.
+
+Two tests before you call it done:
+1. The user said **"I didn't tell you that"** at least once — the read surfaced something mining found that conversation wouldn't have.
+2. The user **corrected you** at least once, and the correction made it into the final text. If neither happened, you probed too little and wrote too safe. Go back to Phase 3.
 
 ## Phase 5 — Artifacts
 
