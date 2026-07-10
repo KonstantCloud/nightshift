@@ -56,7 +56,12 @@ EOF
     if [ -t 0 ]; then
       printf "Set a password to encrypt the published page (blank = no encryption): "
       read -rs pw; echo
-      [ -n "$pw" ] && { umask 077; printf '%s' "$pw" > "$NS_HOME/.password"; echo "encryption on."; } || echo "encryption off (plain page)."
+      if [ -n "$pw" ]; then
+        umask 077; printf '%s' "$pw" > "$NS_HOME/.password"; echo "encryption on."
+        command -v security >/dev/null 2>&1 && \
+          security add-generic-password -U -a "$USER" -s "nightshift $NS_HOME" -w "$pw" 2>/dev/null && \
+          echo "also saved to macOS Keychain — 'nightshift pw' copies it anytime."
+      else echo "encryption off (plain page)."; fi
     else
       echo "non-interactive shell: encryption off (plain page). run 'nightshift init' in a terminal to add a password."
     fi
@@ -229,6 +234,17 @@ publish)
     echo "rendered $NS_HOME/index.html (set DEPLOY_CMD in $NS_HOME/config to auto-deploy)"; fi
   ;;
 
+pw) # nightshift pw — copy the page password to the clipboard (keychain first, file fallback)
+  P=""
+  command -v security >/dev/null 2>&1 && P=$(security find-generic-password -s "nightshift $NS_HOME" -w 2>/dev/null || true)
+  [ -z "$P" ] && [ -f "$NS_HOME/.password" ] && P=$(cat "$NS_HOME/.password")
+  [ -n "$P" ] || die "no password stored (run: nightshift init)"
+  if command -v pbcopy >/dev/null 2>&1; then printf '%s' "$P" | pbcopy; echo "password copied to clipboard"
+  elif command -v xclip >/dev/null 2>&1; then printf '%s' "$P" | xclip -selection clipboard; echo "password copied to clipboard"
+  elif command -v wl-copy >/dev/null 2>&1; then printf '%s' "$P" | wl-copy; echo "password copied to clipboard"
+  else printf '%s\n' "$P"; fi
+  ;;
+
 version)
   cat "$LIB/../VERSION" 2>/dev/null || echo "unknown"
   ;;
@@ -273,6 +289,7 @@ nightshift — an encrypted, multi-session work journal for AI coding agents.
   nightshift due                          open calls past their due date
   nightshift render                       build the (encrypted) index.html
   nightshift open [what]                  index of everything it made; open one in a click
+  nightshift pw                           copy the page password (macOS Keychain / .password)
   nightshift publish                      render + commit the home + run DEPLOY_CMD
   nightshift doctor                       check deps, config & updates
   nightshift upgrade                      pull the latest nightshift

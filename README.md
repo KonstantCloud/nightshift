@@ -29,7 +29,7 @@ nightshift log diary mysession "the bug wasn't the cache — two sessions share 
 nightshift publish
 ```
 
-When a turn tries to end on `deployed X ✓` and nothing else, the Stop hook blocks it — once — until a real `diary`/`idea` entry exists. Entries are per-session `jsonl`, append-only, no clobbering; the rendered page is encrypted client-side (the host never sees plaintext). Sentinels are keyed per session, so concurrent agents never block each other.
+When a turn tries to end on `deployed X ✓` and nothing else, the Stop hook blocks it — once — until a real `diary`/`idea` entry exists. Entries are per-session `jsonl`, append-only, no clobbering; the rendered page is encrypted client-side (the host never sees plaintext); the password gate is password-manager-native — save it once in your browser and it autofills, or `nightshift pw` copies it from the macOS Keychain. Sentinels are keyed per session, so concurrent agents never block each other.
 
 ```
 nightshift send relay all "claiming the deploy — hold until it lands"   # nowish
