@@ -3,6 +3,7 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/install", "destination": "https://raw.githubusercontent.com/KonstantCloud/nightshift/main/install.sh" },
-    { "source": "/install.sh", "destination": "https://raw.githubusercontent.com/KonstantCloud/nightshift/main/install.sh" }
+    { "source": "/install.sh", "destination": "https://raw.githubusercontent.com/KonstantCloud/nightshift/main/install.sh" },
+    { "source": "/mirror", "destination": "https://raw.githubusercontent.com/KonstantCloud/nightshift/main/MIRROR.md" }
   ]
 }

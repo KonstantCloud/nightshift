@@ -147,10 +147,10 @@ mirror) # nightshift mirror [keep <id>|drop <id>]  — review the private observ
   sub="${1:-list}"
   case "$sub" in
     deep)
-      echo "# hand this to your agent in a fresh session: 'read this file and run it on me'"
-      echo "# $LIB/../share/mirror-protocol.md"
+      echo "# hand this to your agent in a fresh session: 'run this on me'"
+      echo "# shareable: https://night-shift.sh/mirror   local: $LIB/../MIRROR.md"
       echo
-      cat "$LIB/../share/mirror-protocol.md"
+      cat "$LIB/../MIRROR.md"
       ;;
     keep|drop)
       id="${2:?usage: nightshift mirror $sub <id>}"

@@ -2,9 +2,11 @@
 
 *A staged deep-read where your agent mines your own session archives — locally — and tells you who you are, with receipts. Then wires the loop that keeps it true.*
 
+> **Lineage.** This protocol grew out of a self-analysis prompt that circulated on X in mid-2026 — copied, run for real, then rebuilt from what the run taught: the receipts discipline, the hypothesis-testing interview, the local-only constraint, the maintenance loop. We don't know who wrote the original. **If it was you, or you know who it was: [open an issue](https://github.com/KonstantCloud/nightshift/issues) and we'll credit you here, prominently.**
+
 You've been working next to AI agents for hundreds of hours. Every session left a transcript. Your agent has effectively already watched you work longer than any colleague ever has — it just never told you what it saw. This protocol makes it tell you.
 
-**How to run it:** open your agent (Claude Code, Codex) in a fresh session and say: *"Read `<nightshift>/share/mirror-protocol.md` and run it on me."* Budget a real session for it — this is archaeology, not a chat.
+**How to run it:** grab it in one line — `curl -fsSL https://night-shift.sh/mirror | pbcopy` (macOS; `xclip` on Linux) — paste it into a fresh agent session and say *"run this on me."* Or locally: `nightshift mirror deep`. Budget a real session for it — this is archaeology, not a chat.
 
 ---
 

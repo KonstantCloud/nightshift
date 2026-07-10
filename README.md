@@ -1,109 +1,104 @@
 # 🌒 nightshift
 
-**An encrypted, multi-session work journal for AI coding agents — that the harness forces the agent to actually *think* into, not just log what it shipped.**
+**Your agent remembers what it shipped. It forgets what it thought. nightshift keeps the thinking — because the harness makes it.**
 
-When you run coding agents (Claude Code, Codex) for hours, the interesting record isn't the git log. It's what the agent *noticed* — the connections it made, the doubts it had, the things it figured out and the things it got wrong. That evaporates every session. NightShift captures it, across every session, and publishes it as one private page.
-
-The twist: agents, like people, drift to logging **receipts** ("deployed X") instead of **thinking**. So NightShift uses a `Stop` hook that won't let a turn end on a receipt-only log — it blocks until a real `diary`/`idea` entry exists. The discipline is in the harness, not in a reminder nobody follows.
-
-```
-nightshift log diary mysession "the bug wasn't the cache — it was that two sessions
-  share one lock file, and I only saw it because the timestamps were 4h apart. that's
-  the same class of bug as last week's. worth a helper."
-nightshift publish
-```
-
-## What you get
-
-- **Append-only `entries/*.jsonl`** — one file per session per day. No clobbering, ever; multiple agents write concurrently.
-- **A published page**, AES-GCM **encrypted** behind a password (client-side; host it anywhere — Vercel, Netlify, a static file). Times are local, newest day open, older days collapsed.
-- **`nowish` — inter-session messaging.** Agents `send` / `inbox` / `pick` short notes to each other ("editing render.py, don't touch"), shown in a band that fades as it ages.
-- **Enforcement, not exhortation.** A `SessionStart` hook injects the practices + your open messages; a `Stop` hook requires thinking before a turn ends.
-
-## Quickstart
+Agentic coding grows code faster than understanding. nightshift grows the understanding: an encrypted, multi-session work journal your agents are *forced* to think into, plus a mirror that points the same instrument back at you.
 
 ```bash
 curl -fsSL https://night-shift.sh/install | bash
 ```
 
-If the domain is unreachable, the same script lives at `https://raw.githubusercontent.com/KonstantCloud/nightshift/main/install.sh`.
+Four instruments, one thin core:
 
-That sets `nightshift` up with a three-question interview (Enter accepts every default; silent in CI), `git init`s your journal (`~/.nightshift`) so your thinking is versioned from entry one, and offers to wire your agent's hooks itself. It runs nothing as root — [read it first](https://night-shift.sh/install) if you like.
+| | |
+|-|-|
+| **The journal** | Append-only, multi-session, published as one AES-encrypted page you host anywhere |
+| **The enforcement** | A `Stop` hook that won't let a turn end on a receipt — a real thought, or the turn doesn't close |
+| **nowish** | Sessions leave notes for each other, so five parallel agents don't collide |
+| **The mirror** | What your agent noticed about *you*, your predictions scored, and a deep read of who you are when you work |
 
-Prefer to do it by hand:
+Works in **Claude Code** and **Codex** — same hook scripts, two registration files. MIT.
 
-```bash
-git clone https://github.com/KonstantCloud/nightshift && cd nightshift
-export PATH="$PWD/bin:$PATH"          # or symlink bin/nightshift into your PATH
-pip install cryptography              # optional — for the encrypted page
-nightshift init                       # sets ~/.nightshift + a password
-nightshift log diary demo "first entry — testing the thing"
-nightshift render                     # -> ~/.nightshift/index.html  (open it)
-```
+## The journal + the enforcement
 
-Set `DEPLOY_CMD` in `~/.nightshift/config` (e.g. `vercel --prod --yes`) and `nightshift publish` renders + ships.
-
-> The installer sends one anonymous ping so we can count adoption — a tally, no machine ID, no personal data. Opt out with `NIGHTSHIFT_NO_TELEMETRY=1`.
-
-## Wire it into your agent (the enforcement)
-
-The hook scripts in `hooks/` are **universal** — Claude Code and Codex pass hooks the same stdin JSON, so the same scripts run in both. Only the registration differs:
-
-- **Claude Code:** the installer offers to wire this for you. Manual: `bash adapters/claude-code/install.sh` (merges into `~/.claude/settings.json`; hooks load automatically in your next session).
-- **Codex:** copy `adapters/codex/hooks.toml` into `~/.codex/config.toml` (Codex's native `SessionStart`/`Stop`/`PostToolUse` hooks, added 2026). See `adapters/codex/README.md`.
-
-That's the whole cross-harness story: **one core, one set of hooks, two config files.**
-
-## How it's built
+The interesting record isn't the git log — it's what the agent *noticed*: the connection it made at 2am, the doubt it didn't say, the thing it got wrong and why. That evaporates every session, because agents (like people) drift to logging receipts under execution pressure. So the discipline lives in the harness:
 
 ```
-bin/nightshift      the CLI: init · log · send · inbox · pick · render · publish · doctor
-lib/render.py       compose entries -> (encrypted) index.html
-lib/inbox.py        open-message reader
-hooks/*.sh          SessionStart / Stop / PostToolUse — harness-agnostic, read stdin JSON
-adapters/           the per-harness registration (claude-code, codex)
-share/reminder.txt  the working-practices injected at session start (edit to taste — keep it
-                    lean; it costs ~250 tokens of context in EVERY session, and that's the
-                    entire ongoing context footprint of nightshift)
+nightshift log diary mysession "the bug wasn't the cache — two sessions share one
+  lock file. I only saw it because the timestamps were 4h apart. worth a helper."
+nightshift publish
 ```
 
-Paths come from `NIGHTSHIFT_HOME` (default `~/.nightshift`). No database, no server, no telemetry in the tool itself — just files and one static page. (The installer’s single disclosed, opt-out ping is the only phone-home, ever.)
-
-## The observation register (opt-in)
-
-The journal holds your **agent's** thinking — and, if you turn it on, what your agent noticed about *you*. Set `MIRROR=1` in `~/.nightshift/config` and the session reminder invites the agent to log observations about its human collaborator — patterns, blind spots, calls worth revisiting:
+When a turn tries to end on `deployed X ✓` and nothing else, the Stop hook blocks it — once — until a real `diary`/`idea` entry exists. Entries are per-session `jsonl`, append-only, no clobbering; the rendered page is encrypted client-side (the host never sees plaintext). Sentinels are keyed per session, so concurrent agents never block each other.
 
 ```
-nightshift observe mysession "he asks for estimates but decides before hearing them —
-  the estimate is a comfort ritual, not an input"
-nightshift mirror              # your private review inbox
-nightshift mirror keep <id>    # -> ~/.nightshift/mirror.md
-nightshift mirror drop <id>
+nightshift send relay all "claiming the deploy — hold until it lands"   # nowish
+nightshift inbox mysession && nightshift pick <id> mysession
 ```
 
-Observations never appear on the shared page, are excluded from the journal's git repo by default, and nothing downstream consumes them until you `keep` them. **It records; it never acts.** Off by default.
+## The mirror
 
-## The Mirror (get better at your own judgment)
+Your agent has effectively watched you work for hundreds of hours. Three ways to get that back:
 
-Your agent has effectively watched you work for hundreds of hours — it just never told you what it saw. Two instruments:
+**1. Observations (opt-in).** With `MIRROR=1`, your agent logs what it notices about its human — patterns, blind spots — to a private inbox. Never on the shared page, git-ignored by default, and nothing consumes an observation until you keep it. *It records; it never acts.*
 
-**The deep read.** `nightshift mirror deep` prints [the Mirror Protocol](share/mirror-protocol.md) — a staged process your agent runs *locally*: mine your own session archives, distill evidence with dated receipts, test its hypotheses against you in interview, then tell you who you are when you work — where your hours die, where they multiply. Everything stays on your machine; that's a hard constraint in the protocol itself.
+```
+nightshift observe mysession "decides before hearing the estimate — it's a comfort ritual"
+nightshift mirror                    # review: keep <id> -> mirror.md, or drop <id>
+```
 
-**The calibration ledger.** Judgment only improves if you score it:
+**2. Calls.** About to commit to something uncertain? Your agent offers it in the moment: *"want to call it?"* When a call comes due, your next session opens by asking how it resolved. The page keeps your hit rate against your confidence — the only known exercise that actually improves judgment.
 
 ```
 nightshift call mysession "this refactor ships by Friday" 80 2026-07-17
-nightshift score m1783... right     # when reality reports back
+nightshift score m1783... right      # due calls are chased automatically at session start
 ```
 
-Open calls and your hit-rate-vs-confidence show on the rendered page. Uncomfortable, by design.
+**3. The deep read.** [`MIRROR.md`](MIRROR.md) is a staged protocol your agent runs **locally**: mine your session archives, distill evidence with dated receipts, test its hypotheses against you in interview — then tell you who you are when you work. Where your hours die. Where they multiply. Nothing leaves your machine; that constraint is written into the protocol.
+
+```bash
+curl -fsSL https://night-shift.sh/mirror | pbcopy    # paste into a fresh session: "run this on me"
+```
+
+## Install
+
+The one-liner above runs a three-question interview (Enter accepts every default; silent in CI), drops `nightshift` on your PATH, `git init`s your journal so your thinking is versioned from entry one, and offers to wire your agent's hooks itself. Nothing runs as root — [read it first](https://night-shift.sh/install).
+
+Wire-in, if you skipped the offer:
+
+- **Claude Code:** `bash adapters/claude-code/install.sh` — merges into `~/.claude/settings.json`; hooks load automatically next session.
+- **Codex:** append `adapters/codex/hooks.toml` to `~/.codex/config.toml` — Codex's native hooks take the same stdin JSON, so the identical scripts run. See [`adapters/codex/README.md`](adapters/codex/README.md).
+
+Manual install, upgrades, health:
+
+```bash
+git clone https://github.com/KonstantCloud/nightshift && export PATH="$PWD/nightshift/bin:$PATH"
+pip install cryptography      # optional — enables the encrypted page
+nightshift upgrade            # zero-copy git pull; `doctor` says when you're behind
+```
+
+> The installer sends one anonymous ping so we can count adoption — a tally, no machine ID, no personal data. Opt out with `NIGHTSHIFT_NO_TELEMETRY=1`. That's the only phone-home in the whole system.
+
+## How it's built (and how thin)
+
+```
+bin/nightshift    the CLI — init · log · send/inbox/pick · observe/mirror · call/score/due
+                  render · publish · doctor · upgrade
+lib/              render.py (entries -> encrypted page) · inbox.py
+hooks/            SessionStart / Stop / PostToolUse — harness-agnostic, stdin JSON
+adapters/         per-harness registration (claude-code, codex)
+MIRROR.md         the deep-read protocol         share/reminder.txt   the injected practices
+```
+
+Measured, not vibed: **~540 lines total. ~250 tokens of context injected once per session — the entire ongoing footprint.** The Stop block is ~46 tokens, fires at most once per working turn. No server, no accounts, no database; paths come from `NIGHTSHIFT_HOME` (default `~/.nightshift`). Keep `share/reminder.txt` lean — it's the part that costs context.
 
 ## Why
 
-Execution is cheap now; the scarce thing is judgment, and the record of it. It's your agent's thinking — and it only survives if it survives execution pressure, which it never does by willpower. So NightShift makes the cheapest action that satisfies the system *be* the thing you actually want: a logged thought. Externalized discipline for the part of the loop nobody can be trusted to do on their own.
+Execution is cheap now; the scarce thing is judgment, and the record of it. Thinking never survives execution pressure on willpower — so nightshift makes the cheapest action that satisfies the system *be* the thing you actually want: a logged thought, a priced prediction, an observation you can check.
+
+## Credits
+
+- **The Mirror Protocol** grew from a self-analysis prompt that circulated on X in mid-2026. We don't know the original author — [tell us](https://github.com/KonstantCloud/nightshift/issues) and we'll credit them prominently.
+- Brought to you by the people building [**Konstant**](https://konstant.cloud) — a judgment-under-incompleteness network for commerce between companies' agents. Same conviction, larger scale: execution is cheap, judgment is scarce, so we build the instruments that protect it.
 
 MIT. Bring your own agent.
-
----
-
-Brought to you by the people building [**Konstant**](https://konstant.cloud) — a judgment-under-incompleteness network for commerce between companies' agents. Same conviction, larger scale: execution is cheap now, judgment is the scarce thing, so we build the instruments that protect it. nightshift is one of them.
