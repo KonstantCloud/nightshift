@@ -16,29 +16,29 @@
 <meta name="twitter:title" content="nightshift — a work journal for AI coding agents" />
 <meta name="twitter:description" content="Your agent remembers what it shipped. It forgets what it thought. nightshift keeps the thinking — because the harness makes it." />
 <meta name="twitter:image" content="https://night-shift.sh/og.png" />
-<meta name="theme-color" content="#141210" />
+<meta name="theme-color" content="#0c0f1e" />
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet" />
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=general-sans@400,500,600&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
 :root{
-  --bg: oklch(0.165 0.012 60);
-  --bg-2: oklch(0.205 0.014 60);
-  --bg-3: oklch(0.245 0.016 62);
-  --ink: oklch(0.945 0.008 85);
-  --muted: oklch(0.73 0.014 72);
-  --faint: oklch(0.63 0.012 70);
-  --dim: oklch(0.55 0.012 70);
+  --bg: oklch(0.135 0.025 265);
+  --bg-2: oklch(0.175 0.028 263);
+  --bg-3: oklch(0.215 0.030 262);
+  --ink: oklch(0.950 0.010 250);
+  --muted: oklch(0.745 0.020 255);
+  --faint: oklch(0.630 0.020 255);
+  --dim: oklch(0.530 0.020 255);
   --amber: oklch(0.80 0.135 74);
   --amber-deep: oklch(0.70 0.15 66);
-  --indigo: oklch(0.70 0.11 268);
-  --line: oklch(0.32 0.012 68 / 0.9);
-  --line-soft: oklch(0.30 0.012 68 / 0.45);
+  --indigo: oklch(0.72 0.10 275);
+  --line: oklch(0.31 0.030 262 / 0.9);
+  --line-soft: oklch(0.29 0.030 262 / 0.45);
   --ok: oklch(0.80 0.13 155);
-  --font-display: "Clash Display", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cabinet Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "General Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --maxw: 1140px;
@@ -53,15 +53,35 @@ body{
   line-height:1.6; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
   overflow-x:hidden;
 }
-/* warm ambient glow, like a bulb somewhere off-frame */
+/* the night: a cold nebula + tiled starfield; the only warmth on this page is lamplight */
 body::before{
-  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
   background:
-    radial-gradient(120vw 80vh at 78% -10%, oklch(0.80 0.135 74 / 0.10), transparent 60%),
-    radial-gradient(90vw 60vh at 0% 40%, oklch(0.70 0.11 268 / 0.06), transparent 55%);
+    radial-gradient(110vw 70vh at 72% -18%, oklch(0.28 0.070 285 / 0.35), transparent 62%),
+    radial-gradient(80vw 55vh at -8% 30%, oklch(0.24 0.060 250 / 0.28), transparent 58%),
+    radial-gradient(60vw 40vh at 85% 85%, oklch(0.80 0.135 74 / 0.05), transparent 60%);
 }
+body::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 22px 34px, oklch(0.95 0.01 250 / 0.85), transparent 50%),
+    radial-gradient(1px 1px at 141px 89px, oklch(0.90 0.02 250 / 0.55), transparent 50%),
+    radial-gradient(1.5px 1.5px at 73px 156px, oklch(0.97 0.01 230 / 0.9), transparent 50%),
+    radial-gradient(1px 1px at 187px 21px, oklch(0.88 0.02 260 / 0.45), transparent 50%),
+    radial-gradient(1px 1px at 51px 217px, oklch(0.92 0.015 250 / 0.6), transparent 50%),
+    radial-gradient(2px 2px at 234px 175px, oklch(0.93 0.04 85 / 0.7), transparent 50%),
+    radial-gradient(1px 1px at 162px 241px, oklch(0.90 0.02 250 / 0.5), transparent 50%),
+    radial-gradient(1px 1px at 105px 63px, oklch(0.87 0.02 260 / 0.4), transparent 50%);
+  background-size: 260px 260px, 310px 310px, 430px 430px, 370px 370px, 290px 290px, 520px 520px, 340px 340px, 240px 240px;
+  animation: drift 240s linear infinite;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.25) 100%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.25) 100%);
+}
+@keyframes drift{ from{ background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to{ background-position: -260px 130px, -155px 233px, -430px 108px, -185px 278px, -290px 73px, -260px 390px, -170px 255px, -240px 60px; } }
+@media (prefers-reduced-motion: reduce){ body::after{ animation:none; } }
 a{ color:inherit; text-decoration:none; }
-h1,h2,h3{ font-family:var(--font-display); font-weight:600; letter-spacing:-0.02em; line-height:1.04; text-wrap:balance; margin:0; }
+h1,h2,h3{ font-family:var(--font-display); font-weight:700; letter-spacing:-0.02em; line-height:1.04; text-wrap:balance; margin:0; }
 p{ margin:0; text-wrap:pretty; }
 .wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:clamp(1.25rem,4vw,2.5rem); }
 .mono{ font-family:var(--font-mono); }
@@ -71,7 +91,7 @@ p{ margin:0; text-wrap:pretty; }
 /* ---------- nav ---------- */
 header.nav{ position:sticky; top:0; z-index:var(--z-nav);
   backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  background:oklch(0.165 0.012 60 / 0.72); border-bottom:1px solid var(--line-soft); }
+  background:oklch(0.135 0.025 265 / 0.72); border-bottom:1px solid var(--line-soft); }
 .nav-in{ display:flex; align-items:center; justify-content:space-between; height:60px; }
 .brand{ display:flex; align-items:center; gap:0.6rem; font-family:var(--font-mono); font-weight:500; font-size:0.95rem; letter-spacing:-0.01em; }
 .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--amber);
@@ -94,7 +114,7 @@ header.nav{ position:sticky; top:0; z-index:var(--z-nav);
 .hero{ padding:clamp(3.5rem,8vw,7rem) 0 clamp(2.5rem,5vw,4rem); }
 .hero-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:clamp(2rem,5vw,4rem); align-items:center; }
 @media (max-width:920px){ .hero-grid{ grid-template-columns:1fr; gap:2.75rem; } }
-.hero h1{ font-size:clamp(2.5rem,2.2rem + 3.6vw,4.5rem); }
+.hero h1{ font-size:clamp(2.5rem,2.2rem + 3.6vw,4.5rem); font-weight:800; }
 .hero h1 .thought{ color:var(--amber); display:block; }
 .hero .sub{ margin-top:1.5rem; max-width:36ch; color:var(--muted); font-size:clamp(1.05rem,1rem + 0.4vw,1.2rem); }
 .hero .sub b{ color:var(--ink); font-weight:500; }
@@ -120,13 +140,13 @@ header.nav{ position:sticky; top:0; z-index:var(--z-nav);
 .hero-stats .stat .k{ font-size:0.72rem; color:var(--faint); letter-spacing:0.05em; margin-top:0.2rem; }
 
 /* ---------- terminal ---------- */
-.term{ position:relative; border-radius:14px; border:1px solid oklch(0.37 0.03 72 / 0.9);
-  background:linear-gradient(180deg, oklch(0.225 0.015 62), oklch(0.195 0.013 60));
-  box-shadow:0 44px 100px -45px oklch(0 0 0 / 0.95), inset 0 1px 0 oklch(0.80 0.135 74 / 0.14),
-             0 0 130px -35px oklch(0.80 0.135 74 / 0.5);
+.term{ position:relative; border-radius:14px; border:1px solid oklch(0.40 0.045 75 / 0.85);
+  background:linear-gradient(180deg, oklch(0.205 0.018 70), oklch(0.170 0.015 68));
+  box-shadow:0 44px 100px -45px oklch(0 0 0 / 0.95), inset 0 1px 0 oklch(0.80 0.135 74 / 0.16),
+             0 0 150px -30px oklch(0.80 0.135 74 / 0.55);
   overflow:hidden; }
 .term-bar{ display:flex; align-items:center; gap:0.5rem; padding:0.7rem 0.95rem; border-bottom:1px solid var(--line-soft);
-  background:oklch(0.22 0.013 60 / 0.6); }
+  background:oklch(0.24 0.020 70 / 0.55); }
 .term-bar .tl{ width:11px; height:11px; border-radius:50%; background:var(--bg-3); }
 .term-bar .name{ margin-left:0.6rem; font-family:var(--font-mono); font-size:0.74rem; color:var(--muted); }
 .term-body{ padding:1.15rem 1.25rem 1.35rem; font-family:var(--font-mono); font-size:0.83rem; line-height:1.75;
@@ -154,7 +174,7 @@ section{ padding:clamp(3.5rem,7vw,6rem) 0; }
 
 /* problem band */
 .problem{ border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft);
-  background:oklch(0.15 0.011 60 / 0.6); }
+  background:oklch(0.11 0.022 264 / 0.6); }
 .problem .big{ font-family:var(--font-display); font-size:clamp(1.6rem,1.3rem + 2vw,2.6rem); font-weight:600;
   letter-spacing:-0.02em; line-height:1.18; max-width:20ch; }
 .problem .big .dim{ color:var(--faint); }
@@ -224,7 +244,7 @@ section{ padding:clamp(3.5rem,7vw,6rem) 0; }
 
 /* why / closing */
 .why{ border-top:1px solid var(--line-soft);
-  background:radial-gradient(80vw 50vh at 50% 120%, oklch(0.80 0.135 74 / 0.09), transparent 60%); }
+  background:radial-gradient(80vw 50vh at 50% 120%, oklch(0.80 0.135 74 / 0.08), transparent 60%); }
 .why .statement{ font-family:var(--font-display); font-weight:600; letter-spacing:-0.02em;
   font-size:clamp(1.7rem,1.4rem + 2.2vw,3rem); line-height:1.18; max-width:22ch; text-wrap:balance; }
 .why .statement .amber{ color:var(--amber); }

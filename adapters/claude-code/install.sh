@@ -15,4 +15,4 @@ jq --arg ss "$SS" --arg pt "$PT" --arg st "$ST" '
   .hooks.SessionStart = strip(.hooks.SessionStart) + [{"hooks":[{"type":"command","command":$ss,"timeout":10}]}] |
   .hooks.PostToolUse  = strip(.hooks.PostToolUse)  + [{"matcher":"Bash","hooks":[{"type":"command","command":$pt,"timeout":10}]}] |
   .hooks.Stop         = strip(.hooks.Stop)         + [{"hooks":[{"type":"command","command":$st,"timeout":15}]}]' "$S" > "$S.tmp" && mv "$S.tmp" "$S"
-echo "installed NightShift hooks into $S (PKG=$PKG). Open /hooks once to reload."
+echo "installed NightShift hooks into $S. They load automatically in your NEXT session; for a session that's already running, open /hooks once to reload."

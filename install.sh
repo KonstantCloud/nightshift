@@ -75,7 +75,20 @@ if command -v git >/dev/null 2>&1 && [ ! -d "$NS_HOME/.git" ]; then
   dim "entries are stored in plaintext; only the rendered page is encrypted"
 fi
 
-# --- 6. star (opt-in, needs gh) ---------------------------------------------
+# --- 6. wire your agent (prompted, default yes) ------------------------------
+if [ -n "$HAS_TTY" ] && [ -d "$HOME/.claude" ]; then
+  if command -v jq >/dev/null 2>&1; then
+    printf "${c_dim}  Claude Code detected — wire the hooks now (Stop-hook enforcement)? [Y/n] ${c_reset}"
+    ans=""; tty_read ans || true
+    case "$ans" in n|N|no|NO) dim "later: bash $SRC/adapters/claude-code/install.sh" ;;
+      *) bash "$SRC/adapters/claude-code/install.sh" ;; esac
+  else
+    dim "Claude Code detected but jq is missing — install jq, then: bash $SRC/adapters/claude-code/install.sh"
+  fi
+fi
+[ -d "$HOME/.codex" ] && dim "Codex detected — see $SRC/adapters/codex/README.md to wire its hooks"
+
+# --- 7. star (opt-in, needs gh) ---------------------------------------------
 if [ -n "$HAS_TTY" ]; then
   printf "${c_dim}  star %s on GitHub? [y/N] ${c_reset}" "$REPO_SLUG"
   ans=""; tty_read ans || true
@@ -90,7 +103,7 @@ if [ -n "$HAS_TTY" ]; then
   esac
 fi
 
-# --- 7. anonymous install ping (opt out: NIGHTSHIFT_NO_TELEMETRY=1) -----------
+# --- 8. anonymous install ping (opt out: NIGHTSHIFT_NO_TELEMETRY=1) -----------
 if [ -z "${NIGHTSHIFT_NO_TELEMETRY:-}" ] && command -v curl >/dev/null 2>&1; then
   curl -fsS -m 4 -X POST "$PING_URL" -H 'content-type: application/json' \
     -d '{"source":"install.sh"}' >/dev/null 2>&1 || true

@@ -49,7 +49,7 @@ Set `DEPLOY_CMD` in `~/.nightshift/config` (e.g. `vercel --prod --yes`) and `nig
 
 The hook scripts in `hooks/` are **universal** — Claude Code and Codex pass hooks the same stdin JSON, so the same scripts run in both. Only the registration differs:
 
-- **Claude Code:** `bash adapters/claude-code/install.sh` (merges into `~/.claude/settings.json`, then open `/hooks` once).
+- **Claude Code:** the installer offers to wire this for you. Manual: `bash adapters/claude-code/install.sh` (merges into `~/.claude/settings.json`; hooks load automatically in your next session).
 - **Codex:** copy `adapters/codex/hooks.toml` into `~/.codex/config.toml` (Codex's native `SessionStart`/`Stop`/`PostToolUse` hooks, added 2026). See `adapters/codex/README.md`.
 
 That's the whole cross-harness story: **one core, one set of hooks, two config files.**
