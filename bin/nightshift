@@ -81,6 +81,29 @@ inbox) # nightshift inbox [session]
   NIGHTSHIFT_HOME="$NS_HOME" python3 "$LIB/inbox.py" "${1:-all}"
   ;;
 
+call) # nightshift call <session> "<claim>" <confidence%> [due YYYY-MM-DD]  — log a falsifiable prediction
+  need jq
+  sess="${1:?usage: nightshift call <session> <claim> <confidence%> [due]}"; text="${2:?claim}"
+  conf="${3:?confidence percent (e.g. 70)}"; due="${4:-}"
+  case "$conf" in ''|*[!0-9]*) die "confidence must be an integer percent (0-100)";; esac
+  id="$(uid)"
+  jq -cn --arg id "$id" --arg ts "$(ts)" --arg s "$sess" --arg t "$text" --argjson c "$conf" --arg d "$due" \
+    '{type:"call",id:$id,ts:$ts,session:$s,text:$t,conf:$c,due:$d}' >> "$ENTRIES/$(day)-$sess.jsonl"
+  echo "call logged ($conf%) — score it later with: nightshift score $id right|wrong"
+  ;;
+
+score) # nightshift score <id> right|wrong
+  need jq
+  id="${1:?usage: nightshift score <id> right|wrong}"; v="${2:?right|wrong}"
+  case "$v" in right|wrong) : ;; *) die "verdict must be 'right' or 'wrong'";; esac
+  line=$(cat "$ENTRIES"/*.jsonl 2>/dev/null | jq -c --arg id "$id" 'select(.type=="call" and .id==$id)' | head -1)
+  [ -n "$line" ] || die "no call with id $id"
+  sess=$(printf '%s' "$line" | jq -r .session)
+  jq -cn --arg id "$id" --arg ts "$(ts)" --arg s "$sess" --arg v "$v" \
+    '{type:"score",id:$id,ts:$ts,session:$s,verdict:$v}' >> "$ENTRIES/$(day)-$sess.jsonl"
+  echo "scored $v"
+  ;;
+
 observe) # nightshift observe <session> "<text>"  — an observation about your human collaborator
   need jq
   sess="${1:?usage: nightshift observe <session> <text>}"; text="${2:?text}"
@@ -94,6 +117,12 @@ mirror) # nightshift mirror [keep <id>|drop <id>]  — review the private observ
   OBS="$NS_HOME/observations.jsonl"
   sub="${1:-list}"
   case "$sub" in
+    deep)
+      echo "# hand this to your agent in a fresh session: 'read this file and run it on me'"
+      echo "# $LIB/../share/mirror-protocol.md"
+      echo
+      cat "$LIB/../share/mirror-protocol.md"
+      ;;
     keep|drop)
       id="${2:?usage: nightshift mirror $sub <id>}"
       line=$(jq -c --arg id "$id" 'select(.k=="obs" and .id==$id)' "$OBS" 2>/dev/null | head -1)
@@ -167,6 +196,9 @@ nightshift — an encrypted, multi-session work journal for AI coding agents.
   nightshift pick <id> <by>               claim/ack a message
   nightshift observe <session> <text>     log an observation about your human (private)
   nightshift mirror [keep|drop <id>]      review that private inbox (never published)
+  nightshift mirror deep                  print the Mirror Protocol (the full deep-read)
+  nightshift call <sess> <claim> <conf%>  log a falsifiable prediction [due YYYY-MM-DD]
+  nightshift score <id> right|wrong       score a call — the page tracks your hit rate
   nightshift render                       build the (encrypted) index.html
   nightshift publish                      render + run DEPLOY_CMD
   nightshift doctor                       check deps, config & updates

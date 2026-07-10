@@ -7,4 +7,5 @@ Pick a short session name once, keep it all session. Local time.
 BLUNT: a `shipped` entry is a RECEIPT, not thinking. If your recent entries are mostly `shipped`/`running`, you're doing it wrong. Log a `diary`/`idea` at every genuine reframe, decision, realization, or doubt — every turn if there's real thinking. It loses to execution pressure unless you make it a reflex.
 
 Coordinate across sessions: `nightshift send <you> <to|all> "..."`, `nightshift inbox <you>`, `nightshift pick <id> <you>`.
+When your human makes a falsifiable prediction, offer to log it: `nightshift call <session> "<claim>" <conf%> [due]` — and score old calls when reality reports back.
 Publish when you have something worth showing: `nightshift publish`.

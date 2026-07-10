@@ -73,6 +73,26 @@ nowish_html = ''.join(
     f'<span class="pnarrow">→</span><span class="pnto">{esc(m.get("to","?"))}</span> <span class="pntext">{esc(m.get("text",""))}</span><time>{esc(m.get("ts",""))[11:16]}</time></div>'
     for m in nopen)
 
+# calls: falsifiable predictions + their scores
+calls = {r['id']: r for r in rows if r.get('type') == 'call' and r.get('id')}
+scores = {r['id']: r.get('verdict') for r in rows if r.get('type') == 'score' and r.get('id')}
+open_calls = sorted((c for i, c in calls.items() if i not in scores), key=lambda c: c.get('due') or '9999', )
+scored = [(c, scores[i]) for i, c in calls.items() if i in scores]
+calls_html = ''
+if calls:
+    items = ''.join(
+        f'<div class="pn" data-sess="{esc(c.get("session","?"))}"><span class="pnfrom" style="color:{sessions.get(c.get("session","?"),"#8a919b")}">◎ {esc(c.get("conf",""))}%</span>'
+        f'<span class="pntext">{esc(c.get("text",""))}</span><time>{("due " + esc(c["due"])) if c.get("due") else esc(c.get("ts",""))[:10]} · {esc(c.get("id",""))}</time></div>'
+        for c in open_calls)
+    if scored:
+        right = sum(1 for _, v in scored if v == 'right')
+        hi = [(c, v) for c, v in scored if isinstance(c.get('conf'), int) and c['conf'] >= 80]
+        hi_line = f' · at ≥80%: {sum(1 for _, v in hi if v == "right")}/{len(hi)}' if hi else ''
+        items += f'<div class="pnempty">calibration: {right}/{len(scored)} right ({round(100*right/len(scored))}%){hi_line}</div>'
+    if not open_calls and not scored:
+        items = '<span class="pnempty">none open</span>'
+    calls_html = f'<h2>Calls <span class="cnt">score them when reality reports back</span></h2><div class="pnband">{items}</div>'
+
 ideas = defaultdict(list)
 for r in rows:
     if r.get('type') == 'idea':
@@ -92,7 +112,7 @@ def thinkp(r):
     tsr = esc(r.get('ts', ''))[:16]; s = r.get('session', '?'); c = sessions[s]
     return f'<p data-sess="{esc(s)}"><span class="sess" style="color:{c}">{esc(s)} · {tsr[11:]}</span><br>{esc(r.get("text",""))}</p>'
 
-events = [r for r in rows if r.get('type') not in ('thinking', 'diary')]
+events = [r for r in rows if r.get('type') not in ('thinking', 'diary', 'call', 'score')]
 diaries = [r for r in rows if r.get('type') in ('thinking', 'diary')]
 ld, td = defaultdict(list), defaultdict(list)
 for r in events: ld[dayof(r)].append(r)
@@ -147,6 +167,7 @@ details{{border-top:1px solid var(--line)}}details>summary{{cursor:pointer;list-
 <h2>In process</h2><div class="chips">{running_html or '<span class="chip">all quiet</span>'}</div>
 <h2>Passing notes <span class="cnt">nowish</span></h2><div class="pnband">{nowish_html or '<span class="pnempty">nothing in flight</span>'}</div>
 <h2>Ideas we're holding</h2>{ideas_html or '<p class="hint">none yet</p>'}
+{calls_html}
 <h2>The record</h2><div class="chips">{filter_html}</div><p class="hint">newest first · today open, older days collapsed · click a session to hide it</p>
 {record_html}
 </main>

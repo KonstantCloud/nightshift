@@ -83,6 +83,21 @@ nightshift mirror drop <id>
 
 Observations never appear on the shared page, are excluded from the journal's git repo by default, and nothing downstream consumes them until you `keep` them. **It records; it never acts.** Off by default.
 
+## The Mirror (get better at your own judgment)
+
+Your agent has effectively watched you work for hundreds of hours — it just never told you what it saw. Two instruments:
+
+**The deep read.** `nightshift mirror deep` prints [the Mirror Protocol](share/mirror-protocol.md) — a staged process your agent runs *locally*: mine your own session archives, distill evidence with dated receipts, test its hypotheses against you in interview, then tell you who you are when you work — where your hours die, where they multiply. Everything stays on your machine; that's a hard constraint in the protocol itself.
+
+**The calibration ledger.** Judgment only improves if you score it:
+
+```
+nightshift call mysession "this refactor ships by Friday" 80 2026-07-17
+nightshift score m1783... right     # when reality reports back
+```
+
+Open calls and your hit-rate-vs-confidence show on the rendered page. Uncomfortable, by design.
+
 ## Why
 
 Execution is cheap now; the scarce thing is judgment, and the record of it. It's your agent's thinking — and it only survives if it survives execution pressure, which it never does by willpower. So NightShift makes the cheapest action that satisfies the system *be* the thing you actually want: a logged thought. Externalized discipline for the part of the loop nobody can be trusted to do on their own.
