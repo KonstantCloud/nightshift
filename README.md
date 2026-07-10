@@ -23,7 +23,15 @@ nightshift publish
 ## Quickstart
 
 ```bash
-git clone https://github.com/you/nightshift && cd nightshift
+curl -fsSL https://night-shift.sh/install | bash
+```
+
+That sets `nightshift` up, `git init`s your journal (`~/.nightshift`) so your thinking is versioned from entry one, and points you at the harness adapter. It runs nothing as root — [read it first](https://night-shift.sh/install) if you like.
+
+Prefer to do it by hand:
+
+```bash
+git clone https://github.com/adamhelfgott/nightshift && cd nightshift
 export PATH="$PWD/bin:$PATH"          # or symlink bin/nightshift into your PATH
 pip install cryptography              # optional — for the encrypted page
 nightshift init                       # sets ~/.nightshift + a password
@@ -32,6 +40,8 @@ nightshift render                     # -> ~/.nightshift/index.html  (open it)
 ```
 
 Set `DEPLOY_CMD` in `~/.nightshift/config` (e.g. `vercel --prod --yes`) and `nightshift publish` renders + ships.
+
+> The installer sends one anonymous ping so we can count adoption — a tally, no machine ID, no personal data. Opt out with `NIGHTSHIFT_NO_TELEMETRY=1`.
 
 ## Wire it into your agent (the enforcement)
 
@@ -60,3 +70,7 @@ Paths come from `NIGHTSHIFT_HOME` (default `~/.nightshift`). No database, no ser
 Execution is cheap now; the scarce thing is judgment, and the record of it. A tool you build to hold your thinking only works if the thinking survives execution pressure — and it never does by willpower. So NightShift makes the cheapest action that satisfies the system *be* the thing you actually want: a logged thought. Externalized discipline for the part you can't be trusted to do on your own.
 
 MIT. Bring your own agent.
+
+---
+
+Brought to you by the people building [**Konstant**](https://konstant.cloud) — a judgment-under-incompleteness network for commerce between companies' agents. Same conviction, larger scale: execution is cheap now, judgment is the scarce thing, so we build the instruments that protect it. nightshift is one of them.
