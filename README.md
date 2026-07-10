@@ -26,12 +26,14 @@ nightshift publish
 curl -fsSL https://night-shift.sh/install | bash
 ```
 
+If the domain is unreachable, the same script lives at `https://raw.githubusercontent.com/KonstantCloud/nightshift/main/install.sh`.
+
 That sets `nightshift` up, `git init`s your journal (`~/.nightshift`) so your thinking is versioned from entry one, and points you at the harness adapter. It runs nothing as root — [read it first](https://night-shift.sh/install) if you like.
 
 Prefer to do it by hand:
 
 ```bash
-git clone https://github.com/adamhelfgott/nightshift && cd nightshift
+git clone https://github.com/KonstantCloud/nightshift && cd nightshift
 export PATH="$PWD/bin:$PATH"          # or symlink bin/nightshift into your PATH
 pip install cryptography              # optional — for the encrypted page
 nightshift init                       # sets ~/.nightshift + a password
@@ -63,7 +65,7 @@ adapters/           the per-harness registration (claude-code, codex)
 share/reminder.txt  the working-practices injected at session start (edit to taste)
 ```
 
-Paths come from `NIGHTSHIFT_HOME` (default `~/.nightshift`). No database, no server, no telemetry — just files and one static page.
+Paths come from `NIGHTSHIFT_HOME` (default `~/.nightshift`). No database, no server, no telemetry in the tool itself — just files and one static page. (The installer’s single disclosed, opt-out ping is the only phone-home, ever.)
 
 ## Why
 

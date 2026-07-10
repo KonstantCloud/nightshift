@@ -6,7 +6,13 @@ set -euo pipefail
 NS_HOME="${NIGHTSHIFT_HOME:-$HOME/.nightshift}"
 ENTRIES="$NS_HOME/entries"
 NOWISH="$NS_HOME/nowish.jsonl"
-LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)"
+# resolve symlinks so LIB points at the real checkout (installer symlinks us into ~/.local/bin)
+SELF="${BASH_SOURCE[0]}"
+while [ -L "$SELF" ]; do
+  t="$(readlink "$SELF")"
+  case "$t" in /*) SELF="$t";; *) SELF="$(dirname "$SELF")/$t";; esac
+done
+LIB="$(cd "$(dirname "$SELF")/../lib" && pwd)"
 
 die(){ echo "nightshift: $*" >&2; exit 1; }
 need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
@@ -20,6 +26,8 @@ case "$cmd" in
 
 init)
   mkdir -p "$ENTRIES"
+  # journal is often git-inited; make sure the secret and the render never get committed
+  [ -f "$NS_HOME/.gitignore" ] || printf '.password\nindex.html\n.pending*\n.blocked*\n' > "$NS_HOME/.gitignore"
   [ -f "$NS_HOME/config" ] || cat > "$NS_HOME/config" <<EOF
 # nightshift config
 TITLE="Night Shift"
@@ -47,8 +55,6 @@ log)  # nightshift log <type> <session> "<text>"
   mkdir -p "$ENTRIES"
   jq -cn --arg ts "$(ts)" --arg s "$sess" --arg k "$typ" --arg t "$text" \
     '{ts:$ts,session:$s,type:$k,text:$t}' >> "$ENTRIES/$(day)-$sess.jsonl"
-  # arm the harness backstop if one is watching
-  touch "$NS_HOME/.pending" 2>/dev/null || true
   echo "logged ($typ)"
   ;;
 
@@ -57,7 +63,6 @@ send) # nightshift send <from> <to|all> "<text>"
   from="${1:?from}"; to="${2:?to}"; text="${3:?text}"
   jq -cn --arg id "$(uid)" --arg ts "$(ts)" --arg fr "$from" --arg to "$to" --arg t "$text" \
     '{kind:"msg",id:$id,ts:$ts,from:$fr,to:$to,text:$t}' >> "$NOWISH"
-  touch "$NS_HOME/.pending" 2>/dev/null || true
   echo "sent -> $to"
   ;;
 

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>og</title>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*{margin:0;box-sizing:border-box}
+html,body{width:1200px;height:630px;overflow:hidden}
+body{
+  background:oklch(0.165 0.012 60);
+  background-image:radial-gradient(900px 500px at 82% -12%, oklch(0.80 0.135 74 / 0.16), transparent 62%),
+                   radial-gradient(700px 420px at -5% 110%, oklch(0.70 0.11 268 / 0.10), transparent 58%);
+  font-family:"Clash Display",sans-serif; color:oklch(0.945 0.008 85);
+  padding:72px 84px; display:flex; flex-direction:column; justify-content:space-between;
+}
+.brand{display:flex;align-items:center;gap:14px;font-family:"Geist Mono",monospace;font-size:26px;font-weight:500}
+.dot{width:16px;height:16px;border-radius:50%;background:oklch(0.80 0.135 74);box-shadow:0 0 26px 4px oklch(0.80 0.135 74 / 0.8)}
+h1{font-size:84px;font-weight:600;letter-spacing:-0.02em;line-height:1.02}
+h1 .a{color:oklch(0.80 0.135 74);display:block}
+.block{font-family:"Geist Mono",monospace;font-size:24px;color:oklch(0.80 0.135 74);
+  background:oklch(0.70 0.15 66 / 0.10);border:2px solid oklch(0.70 0.15 66 / 0.4);border-radius:12px;
+  padding:18px 26px;display:inline-block;max-width:900px}
+.foot{display:flex;justify-content:space-between;align-items:baseline;font-family:"Geist Mono",monospace;font-size:24px;color:oklch(0.73 0.014 72)}
+.foot .u{color:oklch(0.80 0.135 74)}
+</style>
+</head>
+<body>
+  <div class="brand"><span class="dot"></span>nightshift</div>
+  <h1>Your agent remembers what it shipped.<span class="a">It forgets what it thought.</span></h1>
+  <div class="block">[nightshift] ⛔ turn can't end on a receipt — what did you figure out?</div>
+  <div class="foot"><span>an encrypted work journal for AI coding agents</span><span class="u">night-shift.sh</span></div>
+</body>
+</html>

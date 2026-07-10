@@ -8,7 +8,16 @@
 <meta property="og:title" content="nightshift — a work journal for AI coding agents" />
 <meta property="og:description" content="Your agent remembers what it shipped. It forgets what it thought. nightshift keeps the thinking — because the harness makes it." />
 <meta property="og:type" content="website" />
+<meta property="og:url" content="https://night-shift.sh/" />
+<meta property="og:image" content="https://night-shift.sh/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="nightshift — a work journal for AI coding agents" />
+<meta name="twitter:description" content="Your agent remembers what it shipped. It forgets what it thought. nightshift keeps the thinking — because the harness makes it." />
+<meta name="twitter:image" content="https://night-shift.sh/og.png" />
 <meta name="theme-color" content="#141210" />
+<script>document.documentElement.classList.add('js')</script>
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,7 +30,8 @@
   --bg-3: oklch(0.245 0.016 62);
   --ink: oklch(0.945 0.008 85);
   --muted: oklch(0.73 0.014 72);
-  --faint: oklch(0.55 0.012 70);
+  --faint: oklch(0.63 0.012 70);
+  --dim: oklch(0.55 0.012 70);
   --amber: oklch(0.80 0.135 74);
   --amber-deep: oklch(0.70 0.15 66);
   --indigo: oklch(0.70 0.11 268);
@@ -75,6 +85,10 @@ header.nav{ position:sticky; top:0; z-index:var(--z-nav);
 .nav-gh:hover{ border-color:var(--amber-deep); background:oklch(0.80 0.135 74 / 0.07); }
 .nav-gh .star{ color:var(--faint); }
 @media (max-width:680px){ .nav-links a.link-hide{ display:none; } }
+@media (max-width:560px){
+  .installbox{ flex-wrap:wrap; }
+  .installbox code{ white-space:normal; word-break:break-all; font-size:0.8rem; }
+}
 
 /* ---------- hero ---------- */
 .hero{ padding:clamp(3.5rem,8vw,7rem) 0 clamp(2.5rem,5vw,4rem); }
@@ -149,7 +163,7 @@ section{ padding:clamp(3.5rem,7vw,6rem) 0; }
 .contrast{ display:grid; gap:0.9rem; }
 .contrast .row{ font-family:var(--font-mono); font-size:0.86rem; display:grid; grid-template-columns:auto 1fr; gap:0.9rem; align-items:baseline; }
 .contrast .row .k{ color:var(--faint); white-space:nowrap; }
-.contrast .row.gone .v{ color:var(--faint); text-decoration:line-through; text-decoration-color:oklch(0.55 0.012 70 / 0.5); }
+.contrast .row.gone .v{ color:var(--dim); text-decoration:line-through; text-decoration-color:oklch(0.55 0.012 70 / 0.5); }
 .contrast .row.kept .v{ color:var(--amber); }
 
 /* how it works — alternating rows, not a card grid */
@@ -192,7 +206,7 @@ section{ padding:clamp(3.5rem,7vw,6rem) 0; }
   background:var(--line-soft); border:1px solid var(--line-soft); border-radius:12px; overflow:hidden; }
 .step{ background:var(--bg); padding:1.35rem 1.4rem; }
 .step .num{ font-family:var(--font-mono); font-size:0.75rem; color:var(--amber); }
-.step h4{ margin:0.6rem 0 0.4rem; font-family:var(--font-sans); font-weight:600; font-size:1.02rem; }
+.step h3{ margin:0.6rem 0 0.4rem; font-family:var(--font-sans); font-weight:600; font-size:1.02rem; }
 .step p{ color:var(--muted); font-size:0.94rem; }
 .step code{ font-family:var(--font-mono); color:var(--ink); font-size:0.86em; }
 
@@ -245,11 +259,11 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
   font-size:0.88rem; color:var(--ink); border-bottom:1px solid var(--indigo); padding-bottom:3px; transition:gap .2s ease; }
 .fk-link:hover{ gap:0.75rem; }
 
-/* reveal */
-.reveal{ opacity:0; transform:translateY(16px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
-.reveal.in{ opacity:1; transform:none; }
+/* reveal — scoped under .js so the page is fully visible without JavaScript */
+.js .reveal{ opacity:0; transform:translateY(16px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+.js .reveal.in{ opacity:1; transform:none; }
 @media (prefers-reduced-motion: reduce){
-  .reveal{ opacity:1; transform:none; transition:none; }
+  .js .reveal{ opacity:1; transform:none; transition:none; }
   .brand .dot{ animation:none; }
   .cursor{ animation:none; }
 }
@@ -264,7 +278,7 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
     <nav class="nav-links">
       <a href="#how" class="link-hide">how it works</a>
       <a href="#install" class="link-hide">install</a>
-      <a class="nav-gh" href="https://github.com/adamhelfgott/nightshift" target="_blank" rel="noopener">
+      <a class="nav-gh" href="https://github.com/KonstantCloud/nightshift" target="_blank" rel="noopener">
         GitHub <span class="star" id="gh-star">★</span>
       </a>
     </nav>
@@ -283,13 +297,13 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
         <div class="cta-row">
           <div class="installbox">
             <span class="prompt">$</span>
-            <code id="install-cmd">curl -fsSL night-shift.sh/install | bash</code>
+            <code id="install-cmd">curl -fsSL https://night-shift.sh/install | bash</code>
             <button class="copy" id="copy-btn" aria-label="Copy install command">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
               <span id="copy-label">copy</span>
             </button>
           </div>
-          <a class="btn-ghost" href="https://github.com/adamhelfgott/nightshift" target="_blank" rel="noopener">
+          <a class="btn-ghost" href="https://github.com/KonstantCloud/nightshift" target="_blank" rel="noopener">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
             Source &amp; docs
           </a>
@@ -378,8 +392,8 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
         <div class="f-visual">
           <div class="panel note">
             <div class="hdr">passing notes</div>
-            <div class="msg"><span class="from">mirror →</span><span><span class="to">deploy-night:</span> render.py has newest-first grouping now — log via the hook so days align.</span></div>
-            <div class="msg fade"><span class="from">relay →</span><span><span class="to">all:</span> claiming the fleet deploy. hold until it lands.</span></div>
+            <div class="msg"><span class="from">owl →</span><span><span class="to">lark:</span> render.py has newest-first grouping now — log via the hook so days align.</span></div>
+            <div class="msg fade"><span class="from">lark →</span><span><span class="to">all:</span> claiming the deploy. hold until it lands.</span></div>
           </div>
         </div>
       </div>
@@ -417,7 +431,7 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
 
       <div class="oneliner reveal">
         <span class="prompt mono">$</span>
-        <code id="install-cmd-2">curl -fsSL night-shift.sh/install | bash</code>
+        <code id="install-cmd-2">curl -fsSL https://night-shift.sh/install | bash</code>
         <button class="copy" id="copy-btn-2" aria-label="Copy install command" style="margin-left:auto;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
           <span>copy</span>
@@ -425,9 +439,9 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
       </div>
 
       <div class="steps reveal">
-        <div class="step"><div class="num">it does →</div><h4>Sets you up</h4><p>Drops the <code>nightshift</code> command on your PATH and runs <code>init</code>.</p></div>
-        <div class="step"><div class="num">it does →</div><h4>Versions your journal</h4><p><code>git init</code>s <code>~/.nightshift</code> — your thinking is a real repo from entry one.</p></div>
-        <div class="step"><div class="num">it does →</div><h4>Wires the harness</h4><p>Points you at the Claude Code / Codex adapter so the Stop hook is live.</p></div>
+        <div class="step"><div class="num">it does →</div><h3>Sets you up</h3><p>Drops the <code>nightshift</code> command on your PATH and runs <code>init</code>.</p></div>
+        <div class="step"><div class="num">it does →</div><h3>Versions your journal</h3><p><code>git init</code>s <code>~/.nightshift</code> — your thinking is a real repo from entry one.</p></div>
+        <div class="step"><div class="num">it does →</div><h3>Wires the harness</h3><p>Points you at the Claude Code / Codex adapter so the Stop hook is live.</p></div>
       </div>
 
       <div class="tabs reveal">
@@ -455,7 +469,7 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
       <p class="statement reveal">A tool you build to hold your thinking only works if the thinking <span class="amber">survives execution pressure</span> — and it never does by willpower.</p>
       <p class="after reveal">So nightshift makes the cheapest action that satisfies the system <em>be</em> the thing you actually want: a logged thought. Externalized discipline for the part you can't be trusted to do on your own.</p>
       <div class="cta-row reveal">
-        <a class="btn-ghost" href="https://github.com/adamhelfgott/nightshift" target="_blank" rel="noopener" style="color:var(--ink);border-color:var(--amber-deep);">
+        <a class="btn-ghost" href="https://github.com/KonstantCloud/nightshift" target="_blank" rel="noopener" style="color:var(--ink);border-color:var(--amber-deep);">
           Read the source →
         </a>
         <span class="mono" style="color:var(--faint);font-size:0.85rem;">MIT · bring your own agent</span>
@@ -483,7 +497,7 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
     <div class="foot">
       <span class="l"><span class="brand" style="font-size:0.86rem;"><span class="dot" aria-hidden="true"></span>nightshift</span></span>
       <div class="links">
-        <a href="https://github.com/adamhelfgott/nightshift" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/KonstantCloud/nightshift" target="_blank" rel="noopener">GitHub</a>
         <a href="#how">How it works</a>
         <a href="#install">Install</a>
         <a href="/install" target="_blank" rel="noopener">Read install.sh</a>
@@ -503,16 +517,21 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---- copy buttons ---- */
-  var CMD = 'curl -fsSL night-shift.sh/install | bash';
+  var CMD = 'curl -fsSL https://night-shift.sh/install | bash';
   function wireCopy(btnId, labelSel){
     var btn = document.getElementById(btnId); if(!btn) return;
+    var lab = labelSel ? btn.querySelector(labelSel) : btn.querySelector('span');
+    var orig = lab ? lab.textContent : '', timer = null;
+    function done(msg){
+      if(lab) lab.textContent = msg;
+      clearTimeout(timer);
+      timer = setTimeout(function(){ btn.classList.remove('copied'); if(lab) lab.textContent = orig; }, 1600);
+    }
     btn.addEventListener('click', function(){
-      navigator.clipboard && navigator.clipboard.writeText(CMD);
-      btn.classList.add('copied');
-      var lab = labelSel ? btn.querySelector(labelSel) : btn.querySelector('span');
-      var prev = lab ? lab.textContent : '';
-      if(lab) lab.textContent = 'copied ✓';
-      setTimeout(function(){ btn.classList.remove('copied'); if(lab) lab.textContent = prev; }, 1600);
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(CMD).then(function(){ btn.classList.add('copied'); done('copied ✓'); },
+                                                function(){ done('press ⌘C'); });
+      } else { done('press ⌘C'); }
     });
   }
   wireCopy('copy-btn', '#copy-label');
@@ -520,21 +539,37 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
 
   /* ---- tabs ---- */
   var tabs = [['tab-cc','panel-cc'],['tab-cx','panel-cx']];
-  tabs.forEach(function(pair){
-    document.getElementById(pair[0]).addEventListener('click', function(){
-      tabs.forEach(function(p){
-        var sel = p[0]===pair[0];
-        document.getElementById(p[0]).setAttribute('aria-selected', sel);
-        document.getElementById(p[1]).hidden = !sel;
-      });
+  function selectTab(id, focus){
+    tabs.forEach(function(p){
+      var sel = p[0]===id, t = document.getElementById(p[0]);
+      t.setAttribute('aria-selected', sel);
+      t.setAttribute('tabindex', sel ? '0' : '-1');
+      document.getElementById(p[1]).hidden = !sel;
+      if(sel && focus) t.focus();
+    });
+  }
+  tabs.forEach(function(pair, i){
+    var t = document.getElementById(pair[0]);
+    t.setAttribute('tabindex', i===0 ? '0' : '-1');
+    t.addEventListener('click', function(){ selectTab(pair[0], false); });
+    t.addEventListener('keydown', function(e){
+      if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+        e.preventDefault();
+        var j = (i + (e.key==='ArrowRight'?1:tabs.length-1)) % tabs.length;
+        selectTab(tabs[j][0], true);
+      }
     });
   });
 
   /* ---- reveal on scroll ---- */
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { threshold: 0.14 });
-  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.14 });
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+  }
 
   /* ---- count up ---- */
   function countTo(el, target){
@@ -553,15 +588,15 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
   /* ---- live install count ---- */
   fetch('/api/i').then(function(r){ return r.json(); }).then(function(d){
     var el = document.getElementById('stat-installs');
-    if(d && d.count != null){ countTo(el, d.count); } else { el.textContent = 'new'; }
+    if(d && d.count > 0){ countTo(el, d.count); } else { el.textContent = 'new'; }
   }).catch(function(){ var el = document.getElementById('stat-installs'); if(el) el.textContent='new'; });
 
   /* ---- github stars ---- */
-  fetch('https://api.github.com/repos/adamhelfgott/nightshift').then(function(r){ return r.json(); }).then(function(d){
-    if(d && typeof d.stargazers_count === 'number'){
+  fetch('https://api.github.com/repos/KonstantCloud/nightshift').then(function(r){ return r.json(); }).then(function(d){
+    if(d && typeof d.stargazers_count === 'number' && d.stargazers_count > 0){
       countTo(document.getElementById('stat-stars'), d.stargazers_count);
       var s = document.getElementById('gh-star'); if(s) s.textContent = '★ ' + d.stargazers_count;
-    } else { document.getElementById('stat-stars').textContent='—'; }
+    } else { document.getElementById('stat-stars').textContent='new'; }
   }).catch(function(){});
 
   /* ---- terminal boot ---- */
@@ -623,7 +658,7 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
     next();
   }
 
-  if(reduce){ renderStatic(); }
+  if(reduce || !('IntersectionObserver' in window)){ renderStatic(); }
   else {
     // play once when the terminal scrolls into view
     var played = false;

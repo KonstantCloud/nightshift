@@ -4,12 +4,14 @@
 // Degrades to { count: null } if the DB is unreachable, so the page never breaks.
 import { neon } from '@neondatabase/serverless';
 
-const sql = neon(process.env.DATABASE_URL);
+let sql = null;
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Access-Control-Allow-Origin', '*');
   try {
+    if (!process.env.DATABASE_URL) return res.status(200).json({ count: null });
+    sql = sql || neon(process.env.DATABASE_URL);
     if (req.method === 'POST') {
       let source = 'install.sh', version = null;
       try {
@@ -22,6 +24,7 @@ export default async function handler(req, res) {
     const rows = await sql`SELECT count(*)::int AS count FROM nightshift_installs`;
     return res.status(200).json({ count: rows[0].count });
   } catch (e) {
+    console.error('install-counter:', e);
     return res.status(200).json({ count: null });
   }
 }

@@ -2,6 +2,7 @@
   "name": "nightshift-site",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Launch site for nightshift",
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4"

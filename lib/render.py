@@ -7,10 +7,11 @@ from datetime import datetime
 from collections import defaultdict
 
 HOME = os.environ.get('NIGHTSHIFT_HOME', os.path.expanduser('~/.nightshift'))
+os.makedirs(HOME, exist_ok=True)
 cfg = {'TITLE': 'Night Shift', 'GATE_SUBTITLE': 'burning the oil is members-only'}
 cpath = os.path.join(HOME, 'config')
 if os.path.exists(cpath):
-    for line in open(cpath):
+    for line in open(cpath, encoding='utf-8'):
         line = line.strip()
         if line.startswith('#') or '=' not in line:
             continue
@@ -19,14 +20,16 @@ if os.path.exists(cpath):
 
 rows = []
 for f in glob.glob(f'{HOME}/entries/*.jsonl'):
-    for line in open(f):
+    for line in open(f, encoding='utf-8'):
         line = line.strip()
         if not line:
             continue
         try:
-            rows.append(json.loads(line))
+            r = json.loads(line)
         except json.JSONDecodeError:
             continue
+        if isinstance(r, dict):
+            rows.append(r)
 rows.sort(key=lambda r: r.get('ts', ''))
 
 COLORS = ['#e0a458', '#7d9fd0', '#6fae82', '#cf7a6e', '#b58ad0', '#5fb8b0']
@@ -50,13 +53,15 @@ running_html = ''.join(
 # nowish: open inter-session messages
 nmsgs, npicked = {}, set()
 if os.path.exists(f'{HOME}/nowish.jsonl'):
-    for line in open(f'{HOME}/nowish.jsonl'):
+    for line in open(f'{HOME}/nowish.jsonl', encoding='utf-8'):
         line = line.strip()
         if not line:
             continue
         try:
             r = json.loads(line)
         except json.JSONDecodeError:
+            continue
+        if not isinstance(r, dict) or r.get('id') is None:
             continue
         if r.get('kind') == 'msg':
             nmsgs[r['id']] = r
@@ -93,7 +98,9 @@ ld, td = defaultdict(list), defaultdict(list)
 for r in events: ld[dayof(r)].append(r)
 for r in diaries: td[dayof(r)].append(r)
 all_days = sorted(set(ld) | set(td), reverse=True)
-newest = all_days[0] if all_days else None
+if 'undated' in all_days:
+    all_days.remove('undated'); all_days.append('undated')
+newest = next((d for d in all_days if d != 'undated'), None)
 blocks = []
 for d in all_days:
     logs = sorted(ld.get(d, []), key=lambda r: r.get('ts', ''), reverse=True)
@@ -155,7 +162,7 @@ if os.path.exists(pwfile):
     try:
         import base64, secrets, hashlib
         from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-        pw = open(pwfile).read().strip().encode()
+        pw = open(pwfile, encoding='utf-8').read().strip().encode()
         salt, iv = secrets.token_bytes(16), secrets.token_bytes(12)
         key = hashlib.pbkdf2_hmac('sha256', pw, salt, 310000, dklen=32)
         blob = AESGCM(key).encrypt(iv, page.encode(), None)
@@ -167,12 +174,12 @@ if os.path.exists(pwfile):
 <div class="gate"><h1>{T}</h1><p>{sub}</p><input id="pw" type="password" placeholder="password" autofocus></div>
 <script>
 const S="{b(salt)}",V="{b(iv)}",C="{b(blob)}";const un=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-async function go(p){{const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveKey']);const k=await crypto.subtle.deriveKey({{name:'PBKDF2',salt:un(S),iterations:310000,hash:'SHA-256'}},km,{{name:'AES-GCM',length:256}},false,['decrypt']);try{{const d=await crypto.subtle.decrypt({{name:'AES-GCM',iv:un(V)}},k,un(C));sessionStorage.setItem('ns',p);document.open();document.write(new TextDecoder().decode(d));document.close();}}catch(e){{document.getElementById('pw').value='';document.getElementById('pw').placeholder='nope — again';}}}}
-document.getElementById('pw').addEventListener('keydown',e=>{{if(e.key==='Enter')go(e.target.value)}});const sv=sessionStorage.getItem('ns');if(sv)go(sv);
+async function go(p){{const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveKey']);const k=await crypto.subtle.deriveKey({{name:'PBKDF2',salt:un(S),iterations:310000,hash:'SHA-256'}},km,{{name:'AES-GCM',length:256}},false,['decrypt']);try{{const d=await crypto.subtle.decrypt({{name:'AES-GCM',iv:un(V)}},k,un(C));document.open();document.write(new TextDecoder().decode(d));document.close();}}catch(e){{document.getElementById('pw').value='';document.getElementById('pw').placeholder='nope — again';}}}}
+document.getElementById('pw').addEventListener('keydown',e=>{{if(e.key==='Enter')go(e.target.value)}});
 </script>'''
-        open(out, 'w').write(shell); encrypted = True
+        open(out, 'w', encoding='utf-8').write(shell); encrypted = True
     except ImportError:
         pass
 if not encrypted:
-    open(out, 'w').write(page)
+    open(out, 'w', encoding='utf-8').write(page)
 print(f'rendered {len(rows)} entries from {len(sessions)} sessions -> {out}' + (' (encrypted)' if encrypted else ' (plain)'))
