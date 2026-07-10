@@ -142,7 +142,7 @@ observe) # nightshift observe <session> "<text>"  — an observation about your 
   echo "observed (private — review with: nightshift mirror)"
   ;;
 
-mirror) # nightshift mirror [keep <id>|drop <id>]  — review the private observation inbox
+mirror) # nightshift mirror [drop <id>]  — the private register of what your agent noticed about you
   need jq
   OBS="$NS_HOME/observations.jsonl"
   sub="${1:-list}"
@@ -153,30 +153,26 @@ mirror) # nightshift mirror [keep <id>|drop <id>]  — review the private observ
       echo
       cat "$LIB/../MIRROR.md"
       ;;
-    keep|drop)
-      id="${2:?usage: nightshift mirror $sub <id>}"
+    drop)
+      id="${2:?usage: nightshift mirror drop <id>}"
       line=$(jq -c --arg id "$id" 'select(.k=="obs" and .id==$id)' "$OBS" 2>/dev/null | head -1)
       [ -n "$line" ] || die "no observation with id $id"
-      if [ "$sub" = "keep" ]; then
-        mkdir -p "$NS_HOME/mirror"
-        [ -f "$NS_HOME/mirror.md" ] && mv "$NS_HOME/mirror.md" "$NS_HOME/mirror/kept.md"   # pre-0.5 migration
-        printf -- "- %s (%s, %s)\n" "$(printf '%s' "$line" | jq -r .text)" \
-          "$(printf '%s' "$line" | jq -r .session)" "$(printf '%s' "$line" | jq -r .ts)" >> "$NS_HOME/mirror/kept.md"
-      fi
-      jq -cn --arg id "$id" --arg ts "$(ts)" --arg v "$sub" '{k:"res",id:$id,ts:$ts,verdict:$v}' >> "$OBS"
-      [ "$sub" = "keep" ] && echo "kept -> $NS_HOME/mirror/kept.md" || echo "dropped"
+      jq -cn --arg id "$id" --arg ts "$(ts)" '{k:"res",id:$id,ts:$ts,verdict:"drop"}' >> "$OBS"
+      echo "dropped"
       ;;
     list|*)
-      [ -f "$OBS" ] || { echo "(no observations)"; exit 0; }
+      [ -f "$OBS" ] || { echo "(no observations yet)"; exit 0; }
       out=$(jq -rs '(map(select(.k=="res") | .id)) as $done
         | map(select(.k=="obs" and ((.id as $i | $done | index($i)) | not)))
         | .[] | "\(.id)  \(.ts)  \(.session): \(.text)"' "$OBS")
-      [ -n "$out" ] && printf '%s\n' "$out" || echo "(inbox clear)"
+      [ -n "$out" ] && printf '%s\n' "$out" || echo "(register clear)"
+      echo
+      echo "wrong? nightshift mirror drop <id> — the rest stays, and folds into your next deep read."
       ;;
   esac
   ;;
 
-open) # nightshift open [page|read|roadmap|kept|home|protocol|config]  — no arg: the index
+open) # nightshift open [page|read|roadmap|home|protocol|config]  — no arg: the index
   opener="open"; command -v xdg-open >/dev/null 2>&1 && opener="xdg-open"
   opener="${NIGHTSHIFT_OPENER:-$opener}"
   what="${1:-}"
@@ -186,7 +182,6 @@ open) # nightshift open [page|read|roadmap|kept|home|protocol|config]  — no ar
       "page      $NS_HOME/index.html" \
       "read      $NS_HOME/mirror/read.md" \
       "roadmap   $NS_HOME/mirror/roadmap.md" \
-      "kept      $NS_HOME/mirror/kept.md" \
       "config    $NS_HOME/config" \
       "home      $NS_HOME" \
       "protocol  $(cd "$LIB/.." && pwd)/MIRROR.md" \
@@ -197,7 +192,7 @@ open) # nightshift open [page|read|roadmap|kept|home|protocol|config]  — no ar
     cat <<'EOF'
   nightshift open <name> opens it.  · = not made yet:
     page needs `nightshift render` · read/roadmap come from the protocol (nightshift mirror deep)
-    kept comes from `nightshift mirror keep <id>`
+    what your agent noticed about you is terminal-only: `nightshift mirror`
 EOF
     exit 0
   fi
@@ -206,11 +201,10 @@ EOF
               [ -f "$tgt" ] || { need python3; NIGHTSHIFT_HOME="$NS_HOME" python3 "$LIB/render.py"; } ;;
     read)     tgt="$NS_HOME/mirror/read.md";;
     roadmap)  tgt="$NS_HOME/mirror/roadmap.md";;
-    kept)     tgt="$NS_HOME/mirror/kept.md";;
     home)     tgt="$NS_HOME";;
     protocol) tgt="$(cd "$LIB/.." && pwd)/MIRROR.md";;
     config)   tgt="$NS_HOME/config";;
-    *) die "unknown: $what (page|read|roadmap|kept|home|protocol|config)";;
+    *) die "unknown: $what (page|read|roadmap|home|protocol|config)";;
   esac
   [ -e "$tgt" ] || die "$what doesn't exist yet — run 'nightshift open' for the index and how to make it"
   "$opener" "$tgt"
@@ -272,7 +266,7 @@ nightshift — an encrypted, multi-session work journal for AI coding agents.
   nightshift inbox [session]              open messages for you / all
   nightshift pick <id> <by>               claim/ack a message
   nightshift observe <session> <text>     log an observation about your human (private)
-  nightshift mirror [keep|drop <id>]      review that private inbox (never published)
+  nightshift mirror [drop <id>]           that private register (never published; drop what's wrong)
   nightshift mirror deep                  print the Mirror Protocol (the full deep-read)
   nightshift call <sess> <claim> <conf%>  log a falsifiable prediction [due YYYY-MM-DD]
   nightshift score <id> right|wrong       score a call — the page tracks your hit rate

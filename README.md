@@ -40,11 +40,11 @@ nightshift inbox mysession && nightshift pick <id> mysession
 
 Your agent has effectively watched you work for hundreds of hours. Three ways to get that back:
 
-**1. Observations (opt-in).** With `MIRROR=1`, your agent logs what it notices about its human — patterns, blind spots — to a private inbox. Never on the shared page, git-ignored by default, and nothing consumes an observation until you keep it. *It records; it never acts.*
+**1. Observations (opt-in).** With `MIRROR=1`, your agent logs what it notices about its human — patterns, blind spots — to a private inbox. Never on the shared page, git-ignored, and nothing downstream consumes it; anything wrong, you drop, and what survives folds into your next deep read. *It records; it never acts.*
 
 ```
 nightshift observe mysession "decides before hearing the estimate — it's a comfort ritual"
-nightshift mirror                    # review: keep <id> -> mirror.md, or drop <id>
+nightshift mirror                    # the register — drop <id> removes what's wrong
 ```
 
 **2. Calls.** About to commit to something uncertain? Your agent offers it in the moment: *"want to call it?"* When a call comes due, your next session opens by asking how it resolved. The page keeps your hit rate against your confidence — the only known exercise that actually improves judgment.
@@ -98,7 +98,7 @@ Measured, not vibed: **~540 lines total. ~250 tokens of context injected once pe
 ~/.nightshift/
   entries/<date>-<session>.jsonl   the journal — one file per session per day     versioned
   nowish.jsonl                     inter-session messages                          versioned
-  mirror/read.md · roadmap.md · kept.md   the deep read, your plan, kept observations   versioned
+  mirror/read.md · roadmap.md      the deep read + your 30-day plan               versioned
   observations.jsonl               the UN-reviewed inbox                           ignored
   .password · index.html · .pending*      secret · derivable render · machine state     ignored
 ```
