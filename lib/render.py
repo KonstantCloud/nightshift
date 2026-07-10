@@ -82,7 +82,7 @@ ideas_html = ''.join(
     + ''.join(f'<li data-sess="{esc(s)}">{esc(r.get("text",""))}</li>' for r in lst) + '</ul></div>'
     for s, lst in ideas.items())
 
-MARK = {'shipped': '▸', 'incident': '✕', 'note': '&#9993;', 'handoff': '⇄', 'running': '…', 'idea': '✧'}
+MARK = {'shipped': '▸', 'incident': '✕', 'note': '&#9993;', 'handoff': '⇄', 'running': '…', 'idea': '✧', 'learning': '◆'}
 def dayof(r): return (esc(r.get('ts', ''))[:10]) or 'undated'
 def logdiv(r):
     tsr = esc(r.get('ts', ''))[:16]; s = r.get('session', '?'); c = sessions[s]

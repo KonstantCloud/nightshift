@@ -91,7 +91,26 @@ publish)
     echo "rendered $NS_HOME/index.html (set DEPLOY_CMD in $NS_HOME/config to auto-deploy)"; fi
   ;;
 
+version)
+  cat "$LIB/../VERSION" 2>/dev/null || echo "unknown"
+  ;;
+
+upgrade)
+  SRCDIR="$(cd "$LIB/.." && pwd)"
+  [ -d "$SRCDIR/.git" ] || die "not a git checkout ($SRCDIR) — re-run the installer: curl -fsSL https://night-shift.sh/install | bash"
+  old="$(cat "$SRCDIR/VERSION" 2>/dev/null || echo '?')"
+  git -C "$SRCDIR" pull --ff-only --quiet || die "could not fast-forward $SRCDIR — try: rm -rf $SRCDIR && curl -fsSL https://night-shift.sh/install | bash"
+  new="$(cat "$SRCDIR/VERSION" 2>/dev/null || echo '?')"
+  [ "$old" = "$new" ] && echo "already up to date ($new)" || echo "upgraded $old -> $new"
+  ;;
+
 doctor)
+  echo "nightshift $(cat "$LIB/../VERSION" 2>/dev/null || echo unknown)"
+  if [ -d "$LIB/../.git" ]; then
+    git -C "$LIB/.." fetch --quiet 2>/dev/null || true
+    behind=$(git -C "$LIB/.." rev-list --count HEAD..@{u} 2>/dev/null || echo 0)
+    [ "${behind:-0}" -gt 0 ] && echo "  update available: $behind commit(s) behind — run: nightshift upgrade"
+  fi
   echo "NIGHTSHIFT_HOME = $NS_HOME"
   for d in python3 jq date; do command -v "$d" >/dev/null 2>&1 && echo "  ok: $d" || echo "  MISSING: $d"; done
   python3 -c "import cryptography" 2>/dev/null && echo "  ok: python cryptography (encryption available)" || echo "  note: 'pip install cryptography' for encrypted pages"
@@ -104,13 +123,15 @@ help|*)
 nightshift — an encrypted, multi-session work journal for AI coding agents.
 
   nightshift init                         set up ~/.nightshift (or \$NIGHTSHIFT_HOME)
-  nightshift log <type> <session> <text>  append an entry (type: shipped|diary|idea|note|running)
+  nightshift log <type> <session> <text>  append an entry (type: shipped|diary|idea|learning|note|running)
   nightshift send <from> <to|all> <text>  send an inter-session (nowish) message
   nightshift inbox [session]              open messages for you / all
   nightshift pick <id> <by>               claim/ack a message
   nightshift render                       build the (encrypted) index.html
   nightshift publish                      render + run DEPLOY_CMD
-  nightshift doctor                       check deps & config
+  nightshift doctor                       check deps, config & updates
+  nightshift upgrade                      pull the latest nightshift
+  nightshift version                      print the installed version
 
 The diary is the point: log your thinking, not just what shipped.
 EOF
