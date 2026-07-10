@@ -28,19 +28,29 @@ init)
   mkdir -p "$ENTRIES"
   # journal is often git-inited; make sure the secret and the render never get committed
   [ -f "$NS_HOME/.gitignore" ] || printf '.password\nindex.html\n.pending*\n.blocked*\nobservations.jsonl\nmirror.md\n' > "$NS_HOME/.gitignore"
-  [ -f "$NS_HOME/config" ] || cat > "$NS_HOME/config" <<EOF
+  if [ ! -f "$NS_HOME/config" ]; then
+    # three questions, Enter accepts the default; silent (all defaults) without a tty
+    title="Night Shift"; mirror=0; deploy=""
+    if [ -t 0 ]; then
+      printf "title for your page [Night Shift]: "; read -r a || true; [ -n "${a:-}" ] && title="$a"
+      printf "observation register — may your agent privately log what it notices about YOU? (you review; never published) [y/N]: "
+      read -r a || true; case "${a:-}" in y|Y|yes|YES) mirror=1;; esac
+      printf "deploy command after render (blank = none, e.g. vercel --prod --yes): "; read -r a || true; deploy="${a:-}"
+    fi
+    cat > "$NS_HOME/config" <<EOF
 # nightshift config
-TITLE="Night Shift"
+TITLE="$title"
 GATE_SUBTITLE="burning the oil is members-only"
 # DEPLOY_CMD runs after render (optional). Examples:
 #   DEPLOY_CMD="vercel --prod --yes"
 #   DEPLOY_CMD="netlify deploy --prod --dir=."
-DEPLOY_CMD=""
+DEPLOY_CMD="$deploy"
 # MIRROR=1 turns on the observation register: your agent may log observations
 # ABOUT YOU (patterns, blind spots, calls worth revisiting) to a PRIVATE inbox
 # that never appears on the shared page. Review with: nightshift mirror
-MIRROR=0
+MIRROR=$mirror
 EOF
+  fi
   if [ ! -f "$NS_HOME/.password" ]; then
     if [ -t 0 ]; then
       printf "Set a password to encrypt the published page (blank = no encryption): "
@@ -51,6 +61,13 @@ EOF
     fi
   fi
   echo "initialized $NS_HOME"
+  cat <<EOF
+
+first five minutes:
+  nightshift log diary me "why I installed this"
+  nightshift render                                # open $NS_HOME/index.html
+  nightshift call me "I'll still be using this in two weeks" 60 $(date -v+14d +%Y-%m-%d 2>/dev/null || date -d '+14 days' +%Y-%m-%d 2>/dev/null || echo "")
+EOF
   ;;
 
 log)  # nightshift log <type> <session> "<text>"

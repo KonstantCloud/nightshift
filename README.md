@@ -28,7 +28,7 @@ curl -fsSL https://night-shift.sh/install | bash
 
 If the domain is unreachable, the same script lives at `https://raw.githubusercontent.com/KonstantCloud/nightshift/main/install.sh`.
 
-That sets `nightshift` up, `git init`s your journal (`~/.nightshift`) so your thinking is versioned from entry one, and points you at the harness adapter. It runs nothing as root — [read it first](https://night-shift.sh/install) if you like.
+That sets `nightshift` up with a three-question interview (Enter accepts every default; silent in CI), `git init`s your journal (`~/.nightshift`) so your thinking is versioned from entry one, and offers to wire your agent's hooks itself. It runs nothing as root — [read it first](https://night-shift.sh/install) if you like.
 
 Prefer to do it by hand:
 
