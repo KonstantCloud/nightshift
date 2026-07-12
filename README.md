@@ -67,7 +67,7 @@ The one-liner above runs a three-question interview (Enter accepts every default
 Wire-in, if you skipped the offer:
 
 - **Claude Code:** `bash adapters/claude-code/install.sh` — merges into `~/.claude/settings.json`; hooks load automatically next session.
-- **Codex:** append `adapters/codex/hooks.toml` to `~/.codex/config.toml` — Codex's native hooks take the same stdin JSON, so the identical scripts run. See [`adapters/codex/README.md`](adapters/codex/README.md).
+- **Codex:** `bash adapters/codex/install.sh` — merges into `~/.codex/hooks.json` (same JSON shape, same stdin contract, identical scripts). Then approve the three hooks once in an interactive session — Codex's consent gate. See [`adapters/codex/README.md`](adapters/codex/README.md).
 
 Manual install, upgrades, health:
 

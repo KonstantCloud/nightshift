@@ -549,9 +549,9 @@ footer{ border-top:1px solid var(--line-soft); padding:3rem 0 3.5rem; }
           <div class="note-sm">The main installer offers to run this for you. Hooks load automatically in your next session — <code>/hooks</code> only reloads one that's already running.</div>
         </div>
         <div class="tabpanel" id="panel-cx" role="tabpanel" aria-labelledby="tab-cx" hidden>
-          <div><span class="c"># copy the native hooks into ~/.codex/config.toml</span></div>
-          <div><span class="p">$</span> cat adapters/codex/hooks.toml &gt;&gt; ~/.codex/config.toml</div>
-          <div class="note-sm">Codex's native SessionStart / Stop / PostToolUse hooks take the same stdin JSON — the same scripts run unchanged. See <code>adapters/codex/README.md</code>.</div>
+          <div><span class="c"># merge the hooks into ~/.codex/hooks.json</span></div>
+          <div><span class="p">$</span> bash adapters/codex/install.sh</div>
+          <div class="note-sm">Same stdin JSON, identical scripts. Then approve the three hooks once in an interactive session — Codex's consent gate for code that runs every session.</div>
         </div>
       </div>
     </div>
