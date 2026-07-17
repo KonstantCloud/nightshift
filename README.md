@@ -83,15 +83,15 @@ nightshift config             # see or change any setting — no switches to mem
 ## How it's built (and how thin)
 
 ```
-bin/nightshift    the CLI — init · log · send/inbox/pick · observe/mirror · call/score/due
+bin/nightshift    the CLI — init · log · send/inbox/pick/sync · observe/mirror · call/score/due
                   render · publish · doctor · upgrade
-lib/              render.py (entries -> encrypted page) · inbox.py
+lib/              render.py (entries -> encrypted page) · inbox.py (nowish + aging) · sync.py
 hooks/            SessionStart / Stop / PostToolUse — harness-agnostic, stdin JSON
 adapters/         per-harness registration (claude-code, codex)
 MIRROR.md         the deep-read protocol         share/reminder.txt   the injected practices
 ```
 
-Measured, not vibed: **~540 lines total. ~250 tokens of context injected once per session — the entire ongoing footprint.** The Stop block is ~46 tokens, fires at most once per working turn. No server, no accounts, no database. Keep `share/reminder.txt` lean — it's the part that costs context.
+Measured, not vibed: **the reminder is ~250 tokens; the whole session-start injection is *bounded*, not open-ended.** nowish notes age out (`NOWISH_TTL_HOURS`, default 12) and the injected list is capped and truncated, so a busy multi-session swarm can't grow the footprint without limit — the same aging keeps the page's "in process" and "passing notes" bands a live snapshot (`RUNNING_TTL_HOURS`, default 24) instead of an ever-growing wall. The Stop block is ~46 tokens, fires at most once per working turn. No server, no accounts, no database. Keep `share/reminder.txt` lean — it's the part that costs context.
 
 **Where everything lives** — one home (`NIGHTSHIFT_HOME`, default `~/.nightshift`), one private git repo. Every session of every agent on the machine — Claude Code and Codex alike — writes here, each to its own append-only file, so parallel agents converge on one page without ever clobbering each other:
 

@@ -2,9 +2,11 @@
 """Compose $NIGHTSHIFT_HOME/entries/*.jsonl into index.html.
 Encrypts (AES-GCM/PBKDF2) if a .password file exists and `cryptography` is installed;
 otherwise writes a plain page. Times are local. Any session runs this after appending."""
-import json, glob, html, os
+import json, glob, html, os, sys
 from datetime import datetime
 from collections import defaultdict
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from inbox import open_messages, ttl_hours, age_hours  # aging lives in one place
 
 HOME = os.environ.get('NIGHTSHIFT_HOME', os.path.expanduser('~/.nightshift'))
 os.makedirs(HOME, exist_ok=True)
@@ -46,31 +48,26 @@ latest_running = {}
 for r in rows:
     if r.get('type') == 'running':
         latest_running[r.get('session', '?')] = r
+# "in process" means recently active — a running marker from days ago isn't; age it out
+# so the band stays a live snapshot instead of an ever-growing wall of every session ever.
+_run_ttl = ttl_hours(HOME, 'RUNNING_TTL_HOURS', 24)
+if _run_ttl and _run_ttl > 0:
+    _now = datetime.now()
+    latest_running = {s: r for s, r in latest_running.items()
+                      if (age_hours(r.get('ts', ''), _now) or 0) < _run_ttl}
 running_html = ''.join(
     f'<span class="chip"><span class="dot" style="background:{sessions[s]}"></span><b style="color:{sessions[s]}">{esc(s)}</b>&nbsp;{esc(r.get("text",""))}<time>&nbsp;· {esc(r.get("ts",""))[11:16]}</time></span>'
     for s, r in latest_running.items())
 
-# nowish: open inter-session messages
-nmsgs, npicked = {}, set()
-if os.path.exists(f'{HOME}/nowish.jsonl'):
-    for line in open(f'{HOME}/nowish.jsonl', encoding='utf-8'):
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            r = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if not isinstance(r, dict) or r.get('id') is None:
-            continue
-        if r.get('kind') == 'msg':
-            nmsgs[r['id']] = r
-        elif r.get('kind') == 'pick':
-            npicked.add(r['id'])
-nopen = sorted((m for i, m in nmsgs.items() if i not in npicked), key=lambda m: m.get('ts', ''), reverse=True)
+# nowish: open (unpicked, unexpired) inter-session messages — same aging as the injection
+_today = datetime.now().strftime('%Y-%m-%d')
+def _pnstamp(ts):  # HH:MM for today, else MM-DD HH:MM — so a stale note never reads as fresh
+    ts = esc(ts or '')
+    return ts[11:16] if ts[:10] == _today else (ts[5:10] + ' ' + ts[11:16]).strip()
+nopen = list(reversed(open_messages(HOME) or []))  # newest first for display
 nowish_html = ''.join(
     f'<div class="pn" data-ts="{esc(m.get("ts",""))}"><span class="pnfrom" style="color:{sessions.get(m.get("from","?"),"#8a919b")}">{esc(m.get("from","?"))}</span>'
-    f'<span class="pnarrow">→</span><span class="pnto">{esc(m.get("to","?"))}</span> <span class="pntext">{esc(m.get("text",""))}</span><time>{esc(m.get("ts",""))[11:16]}</time></div>'
+    f'<span class="pnarrow">→</span><span class="pnto">{esc(m.get("to","?"))}</span> <span class="pntext">{esc(m.get("text",""))}</span><time>{_pnstamp(m.get("ts",""))}</time></div>'
     for m in nopen)
 
 # calls: falsifiable predictions + their scores

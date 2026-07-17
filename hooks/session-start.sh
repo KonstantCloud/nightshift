@@ -8,11 +8,12 @@ if grep -qE '^MIRROR="?1"?' "$NS/config" 2>/dev/null; then ctx="$ctx
 
 Also: when you notice something real about your human collaborator — a pattern, a blind spot, a call worth revisiting — log it with: nightshift observe <session> \"...\". It goes to a PRIVATE review inbox (nightshift mirror), never the shared page. It records; it does not act."
 fi
-inbox="$(NIGHTSHIFT_HOME="$NS" python3 "$(dirname "$0")/../lib/inbox.py" all 2>/dev/null)"
-# cap injection so a flooded inbox can't bloat session context
+# --brief truncates each note to ~140 chars; aging (NOWISH_TTL_HOURS) already dropped stale ones
+inbox="$(NIGHTSHIFT_HOME="$NS" python3 "$(dirname "$0")/../lib/inbox.py" all --brief 2>/dev/null)"
+# cap injection so even a burst of fresh notes can't bloat session context
 n=$(printf '%s\n' "$inbox" | wc -l | tr -d ' ')
-[ "$n" -gt 12 ] && inbox="$(printf '%s\n' "$inbox" | tail -12)
-(…$((n-12)) older open messages — run: nightshift inbox)"
+[ "$n" -gt 8 ] && inbox="$(printf '%s\n' "$inbox" | tail -8)
+(…$((n-8)) more open — run: nightshift inbox)"
 case "$inbox" in ""|"(inbox empty)"|"(no messages)") : ;; *) ctx="$ctx
 
 OPEN INTER-SESSION MESSAGES (nowish) — claim yours: nightshift pick <id> <your-session>

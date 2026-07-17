@@ -109,6 +109,11 @@ inbox) # nightshift inbox [session]
   NIGHTSHIFT_HOME="$NS_HOME" python3 "$LIB/inbox.py" "${1:-all}"
   ;;
 
+sync) # nightshift sync <orphan-home> [...] [--nowish]  — merge a sandbox/fallback store back home
+  need python3
+  NIGHTSHIFT_HOME="$NS_HOME" python3 "$LIB/sync.py" "$@"
+  ;;
+
 call) # nightshift call <session> "<claim>" <confidence%> [due YYYY-MM-DD]  — log a falsifiable prediction
   need jq
   sess="${1:?usage: nightshift call <session> <claim> <confidence%> [due]}"; text="${2:?claim}"
@@ -322,6 +327,7 @@ nightshift — an encrypted, multi-session work journal for AI coding agents.
   nightshift send <from> <to|all> <text>  send an inter-session (nowish) message
   nightshift inbox [session]              open messages for you / all
   nightshift pick <id> <by>               claim/ack a message
+  nightshift sync <orphan-home> [...]     merge a sandbox/fallback store back into the home journal
   nightshift observe <session> <text>     log an observation about your human (private)
   nightshift mirror [on|off|drop <id>]    that private register (never published; drop what's wrong)
   nightshift mirror deep                  print the Mirror Protocol (the full deep-read)
