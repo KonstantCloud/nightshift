@@ -10,7 +10,7 @@ set -euo pipefail
 command -v jq >/dev/null 2>&1 || { echo "nightshift: jq is required (brew install jq / apt install jq)"; exit 1; }
 PKG="$(cd "$(dirname "$0")/../.." && pwd)"
 NS="${NIGHTSHIFT_HOME:-$HOME/.nightshift}"
-mkdir -p "$NS/entries"; cp -n "$PKG/share/reminder.txt" "$NS/reminder.txt" 2>/dev/null || true
+bash "$PKG/lib/seed-reminder.sh" "$PKG" "$NS"
 H="$HOME/.codex/hooks.json"
 mkdir -p "$(dirname "$H")"; [ -f "$H" ] || echo '{"hooks":{}}' > "$H"
 SS="bash \"$PKG/hooks/session-start.sh\""; PT="bash \"$PKG/hooks/posttool.sh\""; ST="bash \"$PKG/hooks/stop.sh\""

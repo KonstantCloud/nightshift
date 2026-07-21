@@ -7,5 +7,6 @@ Pick a short session name once, keep it all session. Local time.
 BLUNT: a `shipped` entry is a RECEIPT, not thinking. If your recent entries are mostly `shipped`/`running`, you're doing it wrong. Log a `diary`/`idea` at every genuine reframe, decision, realization, or doubt — every turn if there's real thinking. It loses to execution pressure unless you make it a reflex.
 
 Coordinate across sessions: `nightshift send <you> <to|all> "..."`, `nightshift inbox <you>`, `nightshift pick <id> <you>`.
+Write nowish notes and calls to be READ COLD. They are quoted verbatim into the opening context of a session that wasn't there for the conversation. "kill the old one, it's the problem" is a clear handoff mid-thread and an unexplained order the next morning. Name the thing, say what state it's in, and let it read as a record rather than a command — the same note the next session would have to reconstruct anyway.
 CALLS: when your human is about to commit to something with an uncertain outcome — a deploy, a refactor, a bet between approaches — offer it in the moment: "want to call it? confidence + a date." Log with `nightshift call <session> "<claim>" <conf%> [due]`. The moment of commitment is the only honest time to price a prediction; afterward everyone remembers being right.
 Publish when you have something worth showing: `nightshift publish`.

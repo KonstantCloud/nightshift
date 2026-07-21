@@ -19,6 +19,19 @@ need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
 ts(){ date +%Y-%m-%dT%H:%M; }          # LOCAL time on purpose
 day(){ date +%Y-%m-%d; }
 uid(){ echo "m$(date +%s)$RANDOM"; }
+scrub(){ # scrub TEXT — redact credential-shaped strings on the way into the journal.
+  # The journal is append-only and its notes are re-injected verbatim into future
+  # sessions, so a key pasted into one note leaks forward every morning until it
+  # ages out — and no one is reading the jsonl to notice. Shape-matching only:
+  # prefix + length, never meaning. Anything not obviously a secret passes through.
+  printf '%s' "$1" | sed -E \
+    -e 's/(sk-[A-Za-z0-9_-]{4})[A-Za-z0-9_-]{12,}[0-9][A-Za-z0-9_-]*/\1[redacted]/g' \
+    -e 's/(gh[pousr]_|github_pat_)[A-Za-z0-9_]{10,}/\1[redacted]/g' \
+    -e 's/(AKIA|ASIA)[A-Z0-9]{16}/\1[redacted]/g' \
+    -e 's/(xox[baprs]-)[A-Za-z0-9-]{10,}/\1[redacted]/g' \
+    -e 's/([Bb]earer )[A-Za-z0-9._~+\/-]{20,}=*/\1[redacted]/g' \
+    -e 's/(-----BEGIN [A-Z ]*PRIVATE KEY-----).*/\1[redacted]/g'
+}
 cfg_set(){ # cfg_set KEY VALUE — update or append in $NS_HOME/config
   f="$NS_HOME/config"; mkdir -p "$NS_HOME"; [ -f "$f" ] || touch "$f"
   awk -v k="$1" -v v="$2" 'BEGIN{done=0} $0 ~ "^"k"=" {print k"=\""v"\""; done=1; next} {print} END{if(!done) print k"=\""v"\""}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
@@ -83,7 +96,7 @@ EOF
 
 log)  # nightshift log <type> <session> "<text>"
   need jq
-  typ="${1:?usage: nightshift log <type> <session> <text>}"; sess="${2:?session}"; text="${3:?text}"
+  typ="${1:?usage: nightshift log <type> <session> <text>}"; sess="${2:?session}"; text="$(scrub "${3:?text}")"
   mkdir -p "$ENTRIES"
   jq -cn --arg ts "$(ts)" --arg s "$sess" --arg k "$typ" --arg t "$text" \
     '{ts:$ts,session:$s,type:$k,text:$t}' >> "$ENTRIES/$(day)-$sess.jsonl"
@@ -92,7 +105,7 @@ log)  # nightshift log <type> <session> "<text>"
 
 send) # nightshift send <from> <to|all> "<text>"
   need jq
-  from="${1:?from}"; to="${2:?to}"; text="${3:?text}"
+  from="${1:?from}"; to="${2:?to}"; text="$(scrub "${3:?text}")"
   jq -cn --arg id "$(uid)" --arg ts "$(ts)" --arg fr "$from" --arg to "$to" --arg t "$text" \
     '{kind:"msg",id:$id,ts:$ts,from:$fr,to:$to,text:$t}' >> "$NOWISH"
   echo "sent -> $to"
@@ -116,7 +129,7 @@ sync) # nightshift sync <orphan-home> [...] [--nowish]  — merge a sandbox/fall
 
 call) # nightshift call <session> "<claim>" <confidence%> [due YYYY-MM-DD]  — log a falsifiable prediction
   need jq
-  sess="${1:?usage: nightshift call <session> <claim> <confidence%> [due]}"; text="${2:?claim}"
+  sess="${1:?usage: nightshift call <session> <claim> <confidence%> [due]}"; text="$(scrub "${2:?claim}")"
   conf="${3:?confidence percent (e.g. 70)}"; due="${4:-}"
   case "$conf" in ''|*[!0-9]*) die "confidence must be an integer percent (0-100)";; esac
   id="$(uid)"
@@ -151,7 +164,7 @@ score) # nightshift score <id> right|wrong
 
 observe) # nightshift observe <session> "<text>"  — an observation about your human collaborator
   need jq
-  sess="${1:?usage: nightshift observe <session> <text>}"; text="${2:?text}"
+  sess="${1:?usage: nightshift observe <session> <text>}"; text="$(scrub "${2:?text}")"
   jq -cn --arg id "$(uid)" --arg ts "$(ts)" --arg s "$sess" --arg t "$text" \
     '{k:"obs",id:$id,ts:$ts,session:$s,text:$t}' >> "$NS_HOME/observations.jsonl"
   echo "observed (private — review with: nightshift mirror)"
